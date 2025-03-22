@@ -1,9 +1,0 @@
-/ # wrk -c32 -t4 -R 25k http://target-fortio.default.svc.cluster.local:8080
-Running 10s test @ http://target-fortio.default.svc.cluster.local:8080
-  4 threads and 32 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.78ms    2.24ms  36.74ms   94.27%
-    Req/Sec       -nan      -nan   0.00      0.00%
-  249416 requests in 10.00s, 17.84MB read
-Requests/sec:  24943.21
-Transfer/sec:      1.78MB
