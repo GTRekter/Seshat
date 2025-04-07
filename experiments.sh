@@ -1,13 +1,14 @@
 #!/bin/bash
 ###################################################################################################################
-#Purpose: The purpose of the script is to setup the environment
-#Created on: 12.10.24
-#Updated on: 12.10.24
-#Made with Love by: Ivan porta
-#Version 1.0
+# Purpose       : The purpose of the script is to setup the environment for the experiment.
+# Created on    : 12.10.24
+# Updated on    : 12.10.24
+# Made with ❤️  : Ivan Porta
+# Version       : 1.0
 ###################################################################################################################
 set -e  
 set -u 
+
 # ---------------------------------------------------------
 # Load utilities
 # ---------------------------------------------------------
