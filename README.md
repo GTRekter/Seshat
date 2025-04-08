@@ -54,6 +54,7 @@ Once your environment is set up, activate it and install the required Python dep
 ```
 source .venv/bin/activate
 pip install pandas
+pip install matplotlib
 ```
 
 # Experiments
