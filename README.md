@@ -27,7 +27,7 @@ To generate diagrams from the Jupyter Notebook (.ipynb) files in the `diagrams/`
 - Open the Command Palette in VS Code (⇧⌘P)
 - Search for **Python: Create Environment** and follow the prompts
 
-For more detailed setup instructions, see the (official VS Code docs)[https://code.visualstudio.com/docs/python/environments].
+For more detailed setup instructions, see the [official VS Code docs](https://code.visualstudio.com/docs/python/environments).
 Once your environment is set up, activate it and install the required Python dependencies:
 ```
 source .venv/bin/activate
