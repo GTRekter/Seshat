@@ -38,66 +38,6 @@ MESH=istio
 # MESH=linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
-# function export_resource_metrics {
-#     OPTIND=1
-#     local OUTPUT_FILE=""
-#     local MESH="" 
-#     while getopts "o:m:" opt; do
-#         case $opt in
-#             o) OUTPUT_FILE="$OPTARG" ;;
-#             m) MESH="$OPTARG" ;;
-#             *) echo "Invalid option: -$OPTARG" >&2; return 1 ;;
-#         esac
-#     done
-#     if [[ -z $OUTPUT_FILE ]] || [[ -z $MESH ]]; then
-#         log_message "ERROR" "Output Directory and Mesh Configuration are required!"
-#         exit 1
-#     fi
-#     log_message "DEBUG" "Output Directory: ${OUTPUT_FILE}"
-#     log_message "DEBUG" "Mesh: ${MESH}"
-#     declare -a QUERIES
-#     if [[ "$MESH" == "istio" ]]; then
-#         QUERIES+=("istio-system|app=istiod|")
-#         QUERIES+=("istio-system|app=ztunnel|")
-#         QUERIES+=("service-mesh-benchmark|app=waypoint|")
-#     fi
-#     if [[ "$MESH" == "linkerd" ]]; then
-#         QUERIES+=("service-mesh-benchmark|linkerd.io/proxy-version|linkerd-proxy")
-#         QUERIES+=("linkerd|linkerd.io/control-plane-component=destination|")
-#     fi
-#     log_message "DEBUG" "Write CSV headers"
-#     echo "timestamp,namespace,pod,container,cpu(millicores),memory(Mi)" > "$OUTPUT_FILE"
-#     log_message "DEBUG" "Collecting CPU/memory metrics every ${INTERVAL}s..."
-#     while true; do
-#         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-#         for QUERY in "${QUERIES[@]}"; do
-#             IFS='|' read -r NS_FILTER LABEL_FILTER CONTAINER_FILTER <<< "$QUERY"
-#             PODS=$(kubectl get pods -n "$NS_FILTER" -l "$LABEL_FILTER" -o jsonpath='{range .items[*]}{.metadata.name}{" "}{end}')
-#             for POD in $PODS; do
-#                 log_message "DEBUG" "Collecting container-level metrics for pod $POD in namespace $NS_FILTER"
-#                 log_message "TECH" "kubectl top pod $POD -n $NS_FILTER --containers --no-headers"
-#                 METRICS=$(kubectl top pod "$POD" -n "$NS_FILTER" --containers --no-headers 2>/dev/null)
-#                 if [[ -n "$METRICS" ]]; then
-#                     while read -r line; do
-#                         POD_NAME=$(echo "$line" | awk '{print $1}')
-#                         CONTAINER=$(echo "$line" | awk '{print $2}')
-#                         CPU=$(echo "$line" | awk '{print $3}' | sed 's/m//')
-#                         MEMORY=$(echo "$line" | awk '{print $4}' | sed 's/Mi//')
-#                         # If a container filter is set, skip non-matching container names
-#                         if [[ -n "$CONTAINER_FILTER" && "$CONTAINER" != "$CONTAINER_FILTER" ]]; then
-#                             continue
-#                         fi
-#                         echo "$TIMESTAMP,$NS_FILTER,$POD_NAME,$CONTAINER,$CPU,$MEMORY" >> "$OUTPUT_FILE"
-#                     done <<< "$METRICS"
-#                 else
-#                     echo "$TIMESTAMP,$NS_FILTER,$POD,N/A,N/A,N/A" >> "$OUTPUT_FILE"
-#                 fi
-#             done
-#         done
-#         sleep "$INTERVAL"
-#     done
-# }
-
 function export_resource_metrics {
     OPTIND=1
     local OUTPUT_FILE=""

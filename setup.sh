@@ -30,6 +30,7 @@ AKS_NODE_COUNT=2
 
 ISTIO_VERSION="1.25.1"
 LINKERD_VERSION="edge-25.4.1"
+
 # ---------------------------------------------------------
 # Functions
 # ---------------------------------------------------------
@@ -181,10 +182,9 @@ function fortio_taint_node {
     kubectl taint node $FORTIO_NODE dedicated=fortio:NoSchedule --overwrite
 }
 
-
-# azure_create_resources
-# azure_get_credentials
-# fortio_taint_node
-# istio_install
-# linkerd_install
-# fortio_install
+azure_create_resources
+azure_get_credentials
+fortio_taint_node
+istio_install
+linkerd_install
+fortio_install
