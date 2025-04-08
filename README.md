@@ -26,7 +26,7 @@ The versions compared are:
 - Istio 1.25.1 (Ambient)
 The environment is:
 - Microsoft AKS running Kubernetes 1.30.10
-- 2 Standard_D4s_v3 nodes (Memory: xxx, CPU: xxx) running Ubuntu
+- 2 Standard_D4s_v3 nodes (Memory (GiB): 16, vCPUs: 4) running Ubuntu
 - Fortio 1.69.1
 Fortio configuration:
 - 100 connections
