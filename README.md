@@ -79,30 +79,35 @@ The following images are automatically generated and updated by the Jupyter Note
 ### HTTP Max Throughput Test
 
 ![Latency](diagrams/01_http_max_throughput/latency_0.png)
+![Latency error](diagrams/01_http_max_throughput/latency_error_0.png)
 ![CPU usage](diagrams/01_http_max_throughput/cpu_0.png)
 ![Memory usage](diagrams/01_http_max_throughput//memory_0.png)
 
 ### Constant HTTP Throughput (1000 QPS)
 
 ![Latency](diagrams/02_http_constant_throughput/latency_1000.png)
+![Latency error](diagrams/02_http_constant_throughput/latency_error_1000.png)
 ![CPU usage](diagrams/02_http_constant_throughput/cpu_1000.png)
 ![Memory usage](diagrams/02_http_constant_throughput/memory_1000.png)
 
 ### Constant HTTP Throughput (10000 QPS)
 
 ![Latency](diagrams/02_http_constant_throughput/latency_10000.png)
+![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png)
 ![CPU usage](diagrams/02_http_constant_throughput/cpu_10000.png)
 ![Memory usage](diagrams/02_http_constant_throughput/memory_10000.png)
 
 ### Constant HTTP Throughput (100 QPS) with 1 KB Payload
 
 ![Latency](diagrams/03_http_payload/latency_100_1000.png)
+![Latency error](diagrams/03_http_payload/latency_error_100_1000.png)
 ![CPU usage](diagrams/03_http_payload/cpu_100_1000.png)
 ![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
 
 ### Constant HTTP Throughput (100 QPS) with 10 KB Payload
 
 ![Latency](diagrams/03_http_payload/latency_100_10000.png)
+![Latency error](diagrams/03_http_payload/latency_error_100_10000.png)
 ![CPU usage](diagrams/03_http_payload/cpu_100_10000.png)
 ![Memory usage](diagrams/03_http_payload/memory_100_10000.png)
 
