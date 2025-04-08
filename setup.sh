@@ -25,7 +25,7 @@ REGION="koreacentral"
 AKS_INSTANCE=001
 AKS_CLUSTER_NAME="aks-training-krc-$AKS_INSTANCE"
 AKS_KUBERNETES_VERSION="1.30.10"
-AKS_NODE_SIZE="Standard_D4s_v3"
+AKS_NODE_SIZE="Standard_D8_v3"
 AKS_NODE_COUNT=2
 
 ISTIO_VERSION="1.25.1"
@@ -100,7 +100,7 @@ function istio_install {
     log_message "INFO" "Installing Istio"
     log_message "DEBUG" "Istio Version: $ISTIO_VERSION"
 
-    log_message" DEBUG" "Installing Istio CLI"
+    log_message "DEBUG" "Installing Istio CLI"
     log_message "TECH" "curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh"
     curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh
     if [ $? -ne 0 ]; then

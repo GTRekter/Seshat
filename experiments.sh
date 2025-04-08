@@ -29,13 +29,13 @@ FORTIO_SERVER_NS="service-mesh-benchmark"
 FORTIO_SERVER_SVC="fortio-server"
 FORTIO_SERVER_PORT="8080"
 
-DURATION="60s"
+DURATION="120s"
 INTERVAL="1s"
-CONNECTIONS=100
+CONNECTIONS=2000
 RESULTS_DIR="./results"
 
-MESH=istio
-# MESH=linkerd
+# MESH=istio
+MESH=linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {
@@ -141,8 +141,9 @@ function http_load_test {
     log_message "DEBUG" "Start collecting metrics..."
     export_resource_metrics -m "$MESH" -o "$METRICS_FILE" &
     METRICS_PID=$!
-    log_message "TECH" "kubectl exec -n $FORTIO_CLIENT_NS fortio-client -c fortio -- fortio load -c $CONNECTIONS -qps $QUERY_PER_SECOND -t $DURATION -payload-size $PAYLOAD_SIZE -json - $TARGET"
-    kubectl exec -n $FORTIO_CLIENT_NS fortio-client -c fortio -- fortio load -c $CONNECTIONS -qps $QUERY_PER_SECOND -t $DURATION -payload-size $PAYLOAD_SIZE -json - "$TARGET" > "$LATENCY_FILE" 2>/dev/null
+    log_message "DEBUG" "Background metrics PID: $METRICS_PID"
+    log_message "TECH" "kubectl exec -n $FORTIO_CLIENT_NS deploy/fortio-client -c fortio -- fortio load -c $CONNECTIONS -qps $QUERY_PER_SECOND -t $DURATION -payload-size $PAYLOAD_SIZE -json - $TARGET"
+    kubectl exec -n $FORTIO_CLIENT_NS deploy/fortio-client -c fortio -- fortio load -c $CONNECTIONS -qps $QUERY_PER_SECOND -t $DURATION -payload-size $PAYLOAD_SIZE -json - "$TARGET" > "$LATENCY_FILE"
     if [ $? -ne 0 ]; then
         log_message "ERROR" "Error connecting to ${URL}"
         kill $METRICS_PID
@@ -151,6 +152,14 @@ function http_load_test {
     kill $METRICS_PID
 }
 
+function cleanup() {
+    if [[ -n "${METRICS_PID:-}" ]]; then
+        echo "Cleaning up background metrics process $METRICS_PID..."
+        kill "$METRICS_PID" 2>/dev/null || true
+    fi
+}
+
+trap cleanup EXIT INT TERM
 log_message "INFO" "Checking if the required tools are installed..."
 if [ -z "$MESH" ] || { [ "$MESH" != "istio" ] && [ "$MESH" != "linkerd" ]; }; then
     log_message "ERROR" "Invalid or missing mesh type. Please set the MESH variable to 'istio' or 'linkerd'."
@@ -219,6 +228,7 @@ if [ "$MESH" == "istio" ]; then
         kubectl wait --for=condition=ready pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_SERVER_NS --timeout=300s
     fi
 fi
+sleep 10
 log_message "DEBUG" "Starting HTTP Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
@@ -226,30 +236,30 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 http_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "off" -c "off"
 log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-sleep 5
+sleep 10
 log_message "DEBUG" "Starting HTTP Constant Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
-QUERY_PER_SECOND_LIST=(1 1000 10000)
+QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
 for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
     http_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "on" -c "on"
     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-    sleep 5
+    sleep 10
 done
 log_message "DEBUG" "Starting HTTP Payload test"
 OUTPUT_DIR="${RESULTS_DIR}/03_http_payload"
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
-PAYLOAD_SIZE_LIST=(0 1000 10000)
+PAYLOAD_SIZE_LIST=(0 1000 10000 100000 1000000)
 for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
     http_load_test -o $OUTPUT_DIR -m $MESH -q "100" -d "on" -c "on" -p $PAYLOAD_SIZE
     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-    sleep 5
+    sleep 10
 done
 # log_message "DEBUG" "Starting GRPC Max Throughput test"
 # OUTPUT_DIR="${RESULTS_DIR}/04_grpc_max_throughput"

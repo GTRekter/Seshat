@@ -65,12 +65,12 @@ The versions compared are:
 
 The environment is:
 - Microsoft AKS running Kubernetes 1.30.10
-- 2 Standard_D4s_v3 nodes (Memory (GiB): 16, vCPUs: 4) running Ubuntu
+- 2 Standard_D8_v3 nodes (32 GiB Memory, 8 vCPUs) running Ubuntu Linux
 - Fortio 1.69.1
 
 Fortio configuration:
-- 100 connections
-- 1-minute duration
+- 2000 connections (maximum number of threads)
+- 2-minute duration
 - 1-second interval metrics
 
 ## Latests Results 
@@ -106,10 +106,10 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### Constant HTTP Throughput (100 QPS) with 10 KB Payload
 
-![Latency](diagrams/03_http_payload/latency_100_10000.png)
-![Latency error](diagrams/03_http_payload/latency_error_100_10000.png)
-![CPU usage](diagrams/03_http_payload/cpu_100_10000.png)
-![Memory usage](diagrams/03_http_payload/memory_100_10000.png)
+![Latency](diagrams/03_http_payload/latency_100_0.png)
+![Latency error](diagrams/03_http_payload/latency_error_100_1000.png)
+![CPU usage](diagrams/03_http_payload/cpu_100_0.png)
+![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
 
 # Contributing
 
