@@ -13,6 +13,7 @@ To collect the metrics, the scripts use the Kubernetes API directly, avoiding th
 - **Color-Coded Logging:** A reusable logging utility for consistent, color-coded log messages to enhance readability and debugging.
 
 # Prerequisites
+
 Before running the scripts, ensure that you have:
 - Azure CLI installed and logged in.
 - kubectl configured for your AKS cluster.
@@ -20,20 +21,36 @@ Before running the scripts, ensure that you have:
 - Appropriate permissions to create and manage resources in your Azure subscription.
 - The required namespaces and deployments (e.g., Fortio client/server, service mesh components) already deployed or available via the scripts.
 
+# Diagrams 
+
+To generate diagrams from the Jupyter Notebook (.ipynb) files in the `diagrams/` directory, it is recommended to create a Python virtual environment.
+- Open the Command Palette in VS Code (⇧⌘P)
+- Search for **Python: Create Environment** and follow the prompts
+
+For more detailed setup instructions, see the (official VS Code docs)[https://code.visualstudio.com/docs/python/environments].
+Once your environment is set up, activate it and install the required Python dependencies:
+```
+source .venv/bin/activate
+pip install pandas
+```
+
 # Experiments
+
 The versions compared are:
 - Linkerd Edge 25.4.1
 - Istio 1.25.1 (Ambient)
+
 The environment is:
 - Microsoft AKS running Kubernetes 1.30.10
 - 2 Standard_D4s_v3 nodes (Memory (GiB): 16, vCPUs: 4) running Ubuntu
 - Fortio 1.69.1
+
 Fortio configuration:
 - 100 connections
 - 1-minute duration
 - 1-second interval metrics
 
-## Results (8/04/2025)
+<!-- ## Results (8/04/2025)
 The following are the results of the HTTP Max Throughput test:
 
 ![Latency](results/01_http_max_throughput/diagrams/latency_0.png)
@@ -62,7 +79,7 @@ The following are the results for constant HTTP throughput (100 QPS) with variab
 
 ![Latency](results/03_http_payload/diagrams/latency_100_10000.png)
 ![CPU usage](results/03_http_payload/diagrams/cpu_100_10000.png)
-![Memory usage](results/03_http_payload/diagrams/memory_100_10000.png)
+![Memory usage](results/03_http_payload/diagrams/memory_100_10000.png) -->
 
 # Contributing
 
