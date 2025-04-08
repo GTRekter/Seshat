@@ -16,12 +16,34 @@ To collect the metrics, the scripts use the Kubernetes API directly, avoiding th
 
 Before running the scripts, ensure that you have:
 - Azure CLI installed and logged in.
-- kubectl configured for your AKS cluster.
+- `kubectl` configured for your AKS cluster.
 - `jq` for JSON parsing (used in metrics collection).
 - Appropriate permissions to create and manage resources in your Azure subscription.
-- The required namespaces and deployments (e.g., Fortio client/server, service mesh components) already deployed or available via the scripts.
 
-# Diagrams 
+# How to use it
+
+- **Login to Azure:** First, you need to provision the resources on Azure. Begin by logging in via the Azure CLI in your local terminal `az login`
+- **Set the Subscription Name:** Replace the `AZURE_SUBSCRIPTION_NAME` value with the name of the subscription where you want to deploy your resources.
+- **Run the Setup Script:** Execute the `setup.sh` script. This will provision all necessary resources.
+
+To keep the setup as clear as possible:
+- A node will be tainted so that only Fortio is deployed there.
+- Istio and Linkerd will be downloaded and installed on another node, based on the `ISTIO_VERSION` and `LINKERD_VERSION` environment variables.
+
+Once the infrastructure is set up, you can start the tests using the `experiments.sh` script. This script ensures a clean environment for each test run by:
+- Removing Istio labels
+- Removing Waypoint
+- Removing Linkerd annotations,
+- Restarting the Fortio workloads (so that no proxies are injected).
+
+Before each load test, it will start a background job that collects metrics via the Kubernetes API. These metrics are saved to a file corresponding to the specific test. Once the test is completed, the script will automatically stop the metrics collection process.
+To begin an experiment, set the `MESH` variable to your desired service mesh and run the script:
+```
+export MESH=istio  # or linkerd
+./experiments.sh
+```
+
+# Diagrams (Work in progress)
 
 To generate diagrams from the Jupyter Notebook (.ipynb) files in the `diagrams/` directory, it is recommended to create a Python virtual environment.
 - Open the Command Palette in VS Code (⇧⌘P)
