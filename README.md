@@ -74,31 +74,33 @@ Fortio configuration:
 - 1-second interval metrics
 
 ## Latests Results 
-The following are the results of the HTTP Max Throughput test:
+The following images are automatically generated and updated by the Jupyter Notebook during each iteration.
+
+### HTTP Max Throughput Test
 
 ![Latency](diagrams/01_http_max_throughput/latency_0.png)
 ![CPU usage](diagrams/01_http_max_throughput/cpu_0.png)
 ![Memory usage](diagrams/01_http_max_throughput//memory_0.png)
 
-The following are the results for constant HTTP throughput (1000 QPS):
+### Constant HTTP Throughput (1000 QPS)
 
 ![Latency](diagrams/02_http_constant_throughput/latency_1000.png)
 ![CPU usage](diagrams/02_http_constant_throughput/cpu_1000.png)
 ![Memory usage](diagrams/02_http_constant_throughput/memory_1000.png)
 
-The following are the results for constant HTTP throughput (10000 QPS):
+### Constant HTTP Throughput (10000 QPS)
 
 ![Latency](diagrams/02_http_constant_throughput/latency_10000.png)
 ![CPU usage](diagrams/02_http_constant_throughput/cpu_10000.png)
 ![Memory usage](diagrams/02_http_constant_throughput/memory_10000.png)
 
-The following are the results for constant HTTP throughput (100 QPS) with variable payload size (1 KB):
+### Constant HTTP Throughput (100 QPS) with 1 KB Payload
 
 ![Latency](diagrams/03_http_payload/latency_100_1000.png)
 ![CPU usage](diagrams/03_http_payload/cpu_100_1000.png)
 ![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
 
-The following are the results for constant HTTP throughput (100 QPS) with variable payload size (10 KB):
+### Constant HTTP Throughput (100 QPS) with 10 KB Payload
 
 ![Latency](diagrams/03_http_payload/latency_100_10000.png)
 ![CPU usage](diagrams/03_http_payload/cpu_100_10000.png)
