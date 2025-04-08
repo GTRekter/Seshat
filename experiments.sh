@@ -34,8 +34,8 @@ INTERVAL="1s"
 CONNECTIONS=100
 RESULTS_DIR="./results"
 
-# MESH=istio
-MESH=linkerd
+MESH=istio
+# MESH=linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 # function export_resource_metrics {

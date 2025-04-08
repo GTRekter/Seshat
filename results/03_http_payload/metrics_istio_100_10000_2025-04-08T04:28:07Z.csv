@@ -1,0 +1,13 @@
+timestamp,namespace,pod,container,cpu(n),memory(Ki)
+2025-04-08T04:28:07Z,istio-system,istiod-76fc5bc774-69vgl,discovery,1733572n,63444Ki
+2025-04-08T04:28:07Z,istio-system,ztunnel-ffwn7,istio-proxy,42480n,1888Ki
+2025-04-08T04:28:07Z,istio-system,ztunnel-lnnfr,istio-proxy,2468696n,11420Ki
+2025-04-08T04:28:07Z,service-mesh-benchmark,waypoint-855dfcf87c-dz5ml,istio-proxy,1764099n,51544Ki
+2025-04-08T04:28:08Z,istio-system,istiod-76fc5bc774-69vgl,discovery,1733572n,63444Ki
+2025-04-08T04:28:08Z,istio-system,ztunnel-ffwn7,istio-proxy,42480n,1888Ki
+2025-04-08T04:28:08Z,istio-system,ztunnel-lnnfr,istio-proxy,2468696n,11420Ki
+2025-04-08T04:28:08Z,service-mesh-benchmark,waypoint-855dfcf87c-dz5ml,istio-proxy,1764099n,51544Ki
+2025-04-08T04:28:10Z,istio-system,istiod-76fc5bc774-69vgl,discovery,1733572n,63444Ki
+2025-04-08T04:28:10Z,istio-system,ztunnel-ffwn7,istio-proxy,42480n,1888Ki
+2025-04-08T04:28:10Z,istio-system,ztunnel-lnnfr,istio-proxy,2468696n,11420Ki
+2025-04-08T04:28:10Z,service-mesh-benchmark,waypoint-855dfcf87c-dz5ml,istio-proxy,1764099n,51544Ki
