@@ -73,36 +73,36 @@ Fortio configuration:
 - 1-minute duration
 - 1-second interval metrics
 
-<!-- ## Results (8/04/2025)
+## Latests Results 
 The following are the results of the HTTP Max Throughput test:
 
-![Latency](results/01_http_max_throughput/diagrams/latency_0.png)
-![CPU usage](results/01_http_max_throughput/diagrams/cpu_0.png)
-![Memory usage](results/01_http_max_throughput/diagrams/memory_0.png)
+![Latency](diagrams/01_http_max_throughput/latency_0.png)
+![CPU usage](diagrams/01_http_max_throughput/cpu_0.png)
+![Memory usage](diagrams/01_http_max_throughput//memory_0.png)
 
 The following are the results for constant HTTP throughput (1000 QPS):
 
-![Latency](results/02_http_constant_throughput/diagrams/latency_1000.png)
-![CPU usage](results/02_http_constant_throughput/diagrams/cpu_1000.png)
-![Memory usage](results/02_http_constant_throughput/diagrams/memory_1000.png)
+![Latency](diagrams/02_http_constant_throughput/latency_1000.png)
+![CPU usage](diagrams/02_http_constant_throughput/cpu_1000.png)
+![Memory usage](diagrams/02_http_constant_throughput/memory_1000.png)
 
 The following are the results for constant HTTP throughput (10000 QPS):
 
-![Latency](results/02_http_constant_throughput/diagrams/latency_10000.png)
-![CPU usage](results/02_http_constant_throughput/diagrams/cpu_10000.png)
-![Memory usage](results/02_http_constant_throughput/diagrams/memory_10000.png)
+![Latency](diagrams/02_http_constant_throughput/latency_10000.png)
+![CPU usage](diagrams/02_http_constant_throughput/cpu_10000.png)
+![Memory usage](diagrams/02_http_constant_throughput/memory_10000.png)
 
 The following are the results for constant HTTP throughput (100 QPS) with variable payload size (1 KB):
 
-![Latency](results/03_http_payload/diagrams/latency_100_1000.png)
-![CPU usage](results/03_http_payload/diagrams/cpu_100_1000.png)
-![Memory usage](results/03_http_payload/diagrams/memory_100_1000.png)
+![Latency](diagrams/03_http_payload/latency_100_1000.png)
+![CPU usage](diagrams/03_http_payload/cpu_100_1000.png)
+![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
 
 The following are the results for constant HTTP throughput (100 QPS) with variable payload size (10 KB):
 
-![Latency](results/03_http_payload/diagrams/latency_100_10000.png)
-![CPU usage](results/03_http_payload/diagrams/cpu_100_10000.png)
-![Memory usage](results/03_http_payload/diagrams/memory_100_10000.png) -->
+![Latency](diagrams/03_http_payload/latency_100_10000.png)
+![CPU usage](diagrams/03_http_payload/cpu_100_10000.png)
+![Memory usage](diagrams/03_http_payload/memory_100_10000.png)
 
 # Contributing
 
