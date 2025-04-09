@@ -12,7 +12,13 @@ metadata:
 spec:
   ports:
     - port: 8080
+      targetPort: 8080
+      protocol: TCP
       name: http
+    - port: 8079
+      targetPort: 8079
+      protocol: TCP
+      name: grpc
   selector:
     app: fortio-server
 ---
@@ -42,7 +48,26 @@ spec:
       - name: fortio
         image: fortio/fortio
         ports:
-        - containerPort: 8080
+          - name: echo
+            containerPort: 8078
+            protocol: TCP
+          - name: grpc
+            containerPort: 8079
+            protocol: TCP
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          - name: redirect
+            containerPort: 8081
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
         # resources:
         #   requests:
         #     cpu: "100m"
@@ -91,6 +116,27 @@ spec:
       containers:
         - name: fortio
           image: fortio/fortio
+          ports:
+            - name: echo
+              containerPort: 8078
+              protocol: TCP
+            - name: grpc
+              containerPort: 8079
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: redirect
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
           # resources:
           #   requests:
           #     cpu: "250m"

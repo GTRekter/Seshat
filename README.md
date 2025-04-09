@@ -111,6 +111,13 @@ The following images are automatically generated and updated by the Jupyter Note
 ![CPU usage](diagrams/03_http_payload/cpu_100_0.png)
 ![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
 
+### GRPC Max Throughput Test
+
+![Latency](diagrams/04_grpc_max_throughput/latency_0_0.png)
+![Latency error](diagrams/04_grpc_max_throughput/latency_error_0_0.png)
+![CPU usage](diagrams/04_grpc_max_throughput/cpu_0_0.png)
+![Memory usage](diagrams/04_grpc_max_throughput/memory_0_0.png)
+
 # Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements. For major changes, please open an issue first to discuss what you would like to change.
