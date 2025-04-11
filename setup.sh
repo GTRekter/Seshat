@@ -184,7 +184,7 @@ function fortio_taint_node {
 
 azure_create_resources
 azure_get_credentials
-# fortio_taint_node
-# istio_install
+fortio_taint_node
+istio_install
 linkerd_install
 fortio_install
