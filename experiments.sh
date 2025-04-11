@@ -36,7 +36,7 @@ CONNECTIONS=150
 RESOLUTION="0.0001"
 RESULTS_DIR="./results"
 
-MESH="linkerd" # baseline, istio, linkerd
+MESH="baseline" # baseline, istio, linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {
