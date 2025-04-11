@@ -8,7 +8,7 @@
 # Made with ❤️  : Ivan Porta
 # Version       : 1.0
 ###################################################################################################################
-function log_message() {
+function log_message {
     local STATUS=$1
     local MESSAGE=$2
     local NC='\033[0m'

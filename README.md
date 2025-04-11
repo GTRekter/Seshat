@@ -65,11 +65,11 @@ The versions compared are:
 
 The environment is:
 - Microsoft AKS running Kubernetes 1.30.10
-- 2 Standard_D8_v3 nodes (32 GiB Memory, 8 vCPUs) running Ubuntu Linux
+- 2 Standard_D4_v5 nodes (32 GiB Memory, 8 vCPUs) running Ubuntu Linux
 - Fortio 1.69.1
 
 Fortio configuration:
-- 2000 connections (maximum number of threads)
+- 150 connections (maximum number of threads)
 - 2-minute duration
 - 1-second interval metrics
 

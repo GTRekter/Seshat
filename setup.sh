@@ -25,7 +25,7 @@ REGION="koreacentral"
 AKS_INSTANCE=001
 AKS_CLUSTER_NAME="aks-training-krc-$AKS_INSTANCE"
 AKS_KUBERNETES_VERSION="1.30.10"
-AKS_NODE_SIZE="Standard_D8_v3"
+AKS_NODE_SIZE="Standard_D4_v5"
 AKS_NODE_COUNT=2
 
 ISTIO_VERSION="1.25.1"
@@ -184,7 +184,7 @@ function fortio_taint_node {
 
 azure_create_resources
 azure_get_credentials
-fortio_taint_node
-istio_install
+# fortio_taint_node
+# istio_install
 linkerd_install
 fortio_install

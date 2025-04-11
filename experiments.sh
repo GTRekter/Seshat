@@ -32,12 +32,11 @@ FORTIO_SERVER_GRPC_PORT="8079"
 
 DURATION="120s"
 INTERVAL="1s"
-CONNECTIONS=2000
+CONNECTIONS=150
 RESOLUTION="0.0001"
 RESULTS_DIR="./results"
 
-MESH=istio
-# MESH=linkerd
+MESH="linkerd" # baseline, istio, linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {
@@ -104,6 +103,13 @@ function export_resource_metrics {
     done
 }
 
+function terminate_export_resource_metrics_process {
+    if [[ -n "${METRICS_PID:-}" ]]; then
+        echo "Cleaning up background metrics process $METRICS_PID..."
+        kill "$METRICS_PID" 2>/dev/null || true
+    fi
+}
+
 function fortio_load_test {
     OPTIND=1
     local OUTPUT_DIR="${RESULTS_DIR}"
@@ -150,10 +156,12 @@ function fortio_load_test {
     NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     METRICS_FILE="${OUTPUT_DIR}/metrics_${MESH}_${QUERY_PER_SECOND}_${PAYLOAD_SIZE}_${NOW}.csv"
     LATENCY_FILE="${OUTPUT_DIR}/latencies_${MESH}_${QUERY_PER_SECOND}_${PAYLOAD_SIZE}_${NOW}.json"
-    log_message "DEBUG" "Start collecting metrics..."
-    export_resource_metrics -m "$MESH" -o "$METRICS_FILE" &
-    METRICS_PID=$!
-    log_message "DEBUG" "Background metrics PID: $METRICS_PID"
+    if [[ "$MESH" != "baseline" ]]; then
+        log_message "DEBUG" "Start collecting metrics..."
+        export_resource_metrics -m "$MESH" -o "$METRICS_FILE" &
+        METRICS_PID=$!
+        log_message "DEBUG" "Background metrics PID: $METRICS_PID"
+    fi
     ARGUMENTS=("-c" "$CONNECTIONS" "-qps" "$QUERY_PER_SECOND" "-t" "$DURATION" "-r" "$RESOLUTION"  "-payload-size" "$PAYLOAD_SIZE")
     if [[ "$NO_CATCHUP" == "true" ]]; then
         ARGUMENTS+=( "-nocatchup" )
@@ -168,24 +176,57 @@ function fortio_load_test {
     kubectl exec -n "$FORTIO_CLIENT_NS" deploy/fortio-client -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" > "$LATENCY_FILE"
     if [ $? -ne 0 ]; then
         log_message "ERROR" "Error connecting to ${URL}"
-        kill $METRICS_PID
+        if [[ "$MESH" != "baseline" ]]; then
+            kill $METRICS_PID
+        fi
         exit 1
     fi
-    kill $METRICS_PID
-}
-
-function cleanup() {
-    if [[ -n "${METRICS_PID:-}" ]]; then
-        echo "Cleaning up background metrics process $METRICS_PID..."
-        kill "$METRICS_PID" 2>/dev/null || true
+    if [[ "$MESH" != "baseline" ]]; then
+        kill $METRICS_PID
     fi
 }
 
-trap cleanup EXIT INT TERM
+function cleanup_environment {
+    log_message "DEBUG" "Deleting existing waypoints in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
+    istioctl waypoint delete --all -n $FORTIO_CLIENT_NS
+    istioctl waypoint delete --all -n $FORTIO_SERVER_NS
+    kubectl label ns $FORTIO_CLIENT_NS istio.io/dataplane-mode-
+    kubectl label ns $FORTIO_SERVER_NS istio.io/dataplane-mode-
+    log_message "DEBUG" "Wait for waypoint to be deleted in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
+    kubectl wait --for=delete pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_CLIENT_NS --timeout=300s
+    log_message "DEBUG" "Deleting existing linkerd annotations in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
+    kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject-
+    kubectl annotate ns $FORTIO_SERVER_NS linkerd.io/inject-
+    kubectl rollout restart deploy -n $FORTIO_CLIENT_NS
+    if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
+        kubectl rollout restart deploy -n $FORTIO_SERVER_NS
+    fi
+    log_message "DEBUG" "Wait for fortio-client and fortio-server to be ready in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
+    kubectl wait --for=condition=ready pod -l app=fortio-client -n $FORTIO_CLIENT_NS --timeout=300s
+    kubectl wait --for=condition=ready pod -l app=fortio-server -n $FORTIO_SERVER_NS --timeout=300s
+}
+
+trap terminate_export_resource_metrics_process EXIT INT TERM
 log_message "INFO" "Checking if the required tools are installed..."
-if [ -z "$MESH" ] || { [ "$MESH" != "istio" ] && [ "$MESH" != "linkerd" ]; }; then
-    log_message "ERROR" "Invalid or missing mesh type. Please set the MESH variable to 'istio' or 'linkerd'."
+if [ -z "$MESH" ] || { [ "$MESH" != "istio" ] && [ "$MESH" != "linkerd" ] && [ "$MESH" != "baseline" ]; }; then
+    log_message "ERROR" "Invalid or missing mesh type. Please set the MESH variable to 'istio', 'linkerd' or 'baseline'."
     exit 1
+fi
+if [ "$MESH" == "istio" ]; then
+    if ! kubectl get pods -n "istio-system" | grep -q "istio"; then
+        log_message "ERROR" "Istio is not deployed in namespace istio-system"
+        exit 1
+    fi
+    if ! kubectl get pods -n "istio-system" | grep -q "ztunnel"; then
+        log_message "ERROR" "ztunnel is not deployed in namespace istio-system"
+        exit 1
+    fi
+fi
+if [ "$MESH" == "linkerd" ]; then
+    if ! kubectl get pods -n "linkerd" | grep -q "linkerd"; then
+        log_message "ERROR" "Linkerd is not deployed in namespace linkerd"
+        exit 1
+    fi
 fi
 if ! kubectl get pods -n $FORTIO_CLIENT_NS | grep -q "fortio-client"; then
     log_message "ERROR" "Fortio client is not deployed in namespace $FORTIO_CLIENT_NS"
@@ -195,37 +236,9 @@ if ! kubectl get pods -n $FORTIO_SERVER_NS | grep -q "fortio-server"; then
     log_message "ERROR" "Fortio server is not deployed in namespace $FORTIO_SERVER_NS"
     exit 1
 fi
-if ! kubectl get pods -n "istio-system" | grep -q "istio"; then
-    log_message "ERROR" "Istio is not deployed in namespace istio-system"
-    exit 1
-fi
-if ! kubectl get pods -n "istio-system" | grep -q "ztunnel"; then
-    log_message "ERROR" "ztunnel is not deployed in namespace istio-system"
-    exit 1
-fi
-if ! kubectl get pods -n "linkerd" | grep -q "linkerd"; then
-    log_message "ERROR" "Linkerd is not deployed in namespace linkerd"
-    exit 1
-fi
 log_message "INFO" "All required tools are installed"
 log_message "INFO" "Starting the experiment..."
-log_message "DEBUG" "Deleting existing waypoints in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-istioctl waypoint delete --all -n $FORTIO_CLIENT_NS
-istioctl waypoint delete --all -n $FORTIO_SERVER_NS
-kubectl label ns $FORTIO_CLIENT_NS istio.io/dataplane-mode-
-kubectl label ns $FORTIO_SERVER_NS istio.io/dataplane-mode-
-log_message "DEBUG" "Wait for waypoint to be deleted in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-kubectl wait --for=delete pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_CLIENT_NS --timeout=300s
-log_message "DEBUG" "Deleting existing linkerd annotations in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject-
-kubectl annotate ns $FORTIO_SERVER_NS linkerd.io/inject-
-kubectl rollout restart deploy -n $FORTIO_CLIENT_NS
-if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
-    kubectl rollout restart deploy -n $FORTIO_SERVER_NS
-fi
-log_message "DEBUG" "Wait for fortio-client and fortio-server to be ready in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-kubectl wait --for=condition=ready pod -l app=fortio-client -n $FORTIO_CLIENT_NS --timeout=300s
-kubectl wait --for=condition=ready pod -l app=fortio-server -n $FORTIO_SERVER_NS --timeout=300s
+cleanup_environment
 if [ "$MESH" == "linkerd" ]; then
     log_message "INFO" "Injecting Linkerd proxy into Fortio client and server"
     kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject=enabled
@@ -251,38 +264,38 @@ if [ "$MESH" == "istio" ]; then
     fi
 fi
 sleep 10
-# log_message "DEBUG" "Starting HTTP Max Throughput test"
-# OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
-# if [ ! -d "$OUTPUT_DIR" ]; then
-#     mkdir -p "$OUTPUT_DIR"
-# fi
-# fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
-# log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-# sleep 10
-# log_message "DEBUG" "Starting HTTP Constant Throughput test"
-# OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
-# if [ ! -d "$OUTPUT_DIR" ]; then
-#     mkdir -p "$OUTPUT_DIR"
-# fi
-# QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
-# for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-#     log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-#     fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
-#     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-#     sleep 10
-# done
-# log_message "DEBUG" "Starting HTTP Payload test"
-# OUTPUT_DIR="${RESULTS_DIR}/03_http_payload"
-# if [ ! -d "$OUTPUT_DIR" ]; then
-#     mkdir -p "$OUTPUT_DIR"
-# fi
-# PAYLOAD_SIZE_LIST=(0 1000 10000 100000 1000000)
-# for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
-#     log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
-#     fortio_load_test -o $OUTPUT_DIR -m $MESH -q "100" -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
-#     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-#     sleep 10
-# done
+log_message "DEBUG" "Starting HTTP Max Throughput test"
+OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
+fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
+log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+sleep 10
+log_message "DEBUG" "Starting HTTP Constant Throughput test"
+OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
+QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
+for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
+    log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+     sleep 10
+done
+log_message "DEBUG" "Starting HTTP Payload test"
+OUTPUT_DIR="${RESULTS_DIR}/03_http_payload"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
+PAYLOAD_SIZE_LIST=(10000 100000)
+for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
+    log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
+    fortio_load_test -o $OUTPUT_DIR -m $MESH -q "100" -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
+    log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+    sleep 10
+done
 log_message "DEBUG" "Starting GRPC Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/04_grpc_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
