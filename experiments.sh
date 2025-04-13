@@ -32,11 +32,11 @@ FORTIO_SERVER_GRPC_PORT="8079"
 
 DURATION="120s"
 INTERVAL="1s"
-CONNECTIONS=150
+CONNECTIONS=50
 RESOLUTION="0.0001"
 RESULTS_DIR="./results"
 
-MESH="baseline" # baseline, istio, linkerd
+MESH="istio" # baseline, istio, linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {
@@ -58,30 +58,30 @@ function export_resource_metrics {
     log_message "DEBUG" "Mesh: ${MESH}"
     declare -a QUERIES
     if [[ "$MESH" == "istio" ]]; then
-        QUERIES+=("istio-system|app=istiod|discovery")
-        QUERIES+=("istio-system|app=ztunnel|istio-proxy")
-        QUERIES+=("$FORTIO_SERVER_NS|service.istio.io/canonical-name=waypoint|istio-proxy")
+        QUERIES+=("control-plane|istio-system|app=istiod|discovery")
+        QUERIES+=("data-plane|istio-system|app=ztunnel|istio-proxy")
+        QUERIES+=("data-plane|$FORTIO_SERVER_NS|service.istio.io/canonical-name=waypoint|istio-proxy")
     fi
     if [[ "$MESH" == "linkerd" ]]; then
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=destination|destination")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=destination|policy")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=destination|linkerd-proxy")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=destination|sp-validator")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=identity|identity")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=identity|linkerd-proxy")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=proxy-injector|proxy-injector")
-        QUERIES+=("linkerd|linkerd.io/control-plane-component=proxy-injector|linkerd-proxy")
-        QUERIES+=("$FORTIO_CLIENT_NS|app=fortio-client|linkerd-proxy")
-        QUERIES+=("$FORTIO_SERVER_NS|app=fortio-server|linkerd-proxy")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=destination|destination")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=destination|policy")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=destination|linkerd-proxy")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=destination|sp-validator")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=identity|identity")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=identity|linkerd-proxy")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=proxy-injector|proxy-injector")
+        QUERIES+=("control-plane|linkerd|linkerd.io/control-plane-component=proxy-injector|linkerd-proxy")
+        QUERIES+=("data-plane|$FORTIO_CLIENT_NS|app=fortio-client|linkerd-proxy")
+        QUERIES+=("data-plane|$FORTIO_SERVER_NS|app=fortio-server|linkerd-proxy")
     fi
     log_message "DEBUG" "Write CSV headers"
-    echo "timestamp,namespace,pod,container,cpu(n),memory(Ki)" > "$OUTPUT_FILE"
+    echo "timestamp,group,namespace,pod,container,cpu(n),memory(Ki)" > "$OUTPUT_FILE"
     log_message "DEBUG" "Collecting CPU/memory metrics every ${INTERVAL}..."
     while true; do
         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         RAW_JSON=$(kubectl get --raw "/apis/metrics.k8s.io/v1beta1/pods")
         for QUERY in "${QUERIES[@]}"; do
-            IFS='|' read -r NS_FILTER LABEL_FILTER CONTAINER_FILTER <<< "$QUERY"
+            IFS='|' read -r GROUP NS_FILTER LABEL_FILTER CONTAINER_FILTER <<< "$QUERY"
             KEY="${LABEL_FILTER%%=*}"
             VALUE="${LABEL_FILTER#*=}"
             MATCHING_ITEMS=$(echo "$RAW_JSON" | jq -c --arg ns "$NS_FILTER" --arg key "$KEY" --arg value "$VALUE" '.items[] | select(.metadata.namespace == $ns and (.metadata.labels[$key] == $value))')
@@ -95,7 +95,7 @@ function export_resource_metrics {
                     fi
                     CPU_NANO=$(echo "$CONTAINER_ITEM" | jq -r '.usage.cpu')
                     MEM_KI=$(echo "$CONTAINER_ITEM" | jq -r '.usage.memory')
-                    echo "$TIMESTAMP,$POD_NAMESPACE,$POD_NAME,$CONTAINER_NAME,$CPU_NANO,$MEM_KI" >> "$OUTPUT_FILE"
+                    echo "$TIMESTAMP,$GROUP,$POD_NAMESPACE,$POD_NAME,$CONTAINER_NAME,$CPU_NANO,$MEM_KI" >> "$OUTPUT_FILE"
                 done
             done <<< "$MATCHING_ITEMS"
         done
@@ -221,10 +221,21 @@ if [ "$MESH" == "istio" ]; then
         log_message "ERROR" "ztunnel is not deployed in namespace istio-system"
         exit 1
     fi
+    if ! command -v istioctl >/dev/null 2>&1; then
+        log_message "ERROR" "istioctl could not be found. You can install the Istio CLI by running the following commands:"
+        log_message "ERROR" "   cd istio-1.25.1"
+        log_message "ERROR" "   export PATH=\$(pwd)/bin:\$PATH"
+        exit 1
+    fi
 fi
 if [ "$MESH" == "linkerd" ]; then
     if ! kubectl get pods -n "linkerd" | grep -q "linkerd"; then
         log_message "ERROR" "Linkerd is not deployed in namespace linkerd"
+        exit 1
+    fi
+    if ! command -v linkerd >/dev/null 2>&1; then
+        log_message "ERROR" "linkerd could not be found. You can install Linkerd CLI by running the following command:"
+        log_message "ERROR" "   export PATH=\$PATH:\$HOME/.linkerd2/bin"
         exit 1
     fi
 fi

@@ -39,11 +39,11 @@ Once the infrastructure is set up, you can start the tests using the `experiment
 Before each load test, it will start a background job that collects metrics via the Kubernetes API. These metrics are saved to a file corresponding to the specific test. Once the test is completed, the script will automatically stop the metrics collection process.
 To begin an experiment, set the `MESH` variable to your desired service mesh and run the script:
 ```
-export MESH=istio  # or linkerd
+export MESH=istio  # baseline, istio or linkerd
 ./experiments.sh
 ```
 
-# Diagrams (Work in progress)
+# Diagrams
 
 To generate diagrams from the Jupyter Notebook (.ipynb) files in the `diagrams/` directory, it is recommended to create a Python virtual environment.
 - Open the Command Palette in VS Code (⇧⌘P)
@@ -57,6 +57,12 @@ pip install pandas
 pip install matplotlib
 ```
 
+Once the environment is set up and dependencies are installed, run the Jupyter Notebooks in the diagrams/ directory. Each notebook processes experimental data to generate up-to-date visual representations of:
+- CPU usage
+- Memory consumption
+The outputs include separate diagrams for individual container metrics (covering both data plane components and all containers) as well as consolidated metrics for the control plane.
+This setup ensures you have a reproducible environment for generating, updating, and analyzing the performance diagrams from your experiments.
+
 # Experiments
 
 The versions compared are:
@@ -69,7 +75,7 @@ The environment is:
 - Fortio 1.69.1
 
 Fortio configuration:
-- 150 connections (maximum number of threads)
+- 50 connections (maximum number of threads)
 - 2-minute duration
 - 1-second interval metrics
 
@@ -78,45 +84,57 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### HTTP Max Throughput Test
 
-![Latency](diagrams/01_http_max_throughput/latency_0.png)
-![Latency error](diagrams/01_http_max_throughput/latency_error_0.png)
-![CPU usage](diagrams/01_http_max_throughput/cpu_0.png)
-![Memory usage](diagrams/01_http_max_throughput//memory_0.png)
+![Latency](diagrams/01_http_max_throughput/global_latency_0.png)
+<!-- ![Latency error](diagrams/01_http_max_throughput/latency_error_0.png) -->
+![Control Plane CPU usage](diagrams/01_http_max_throughput/control_plane_cpu_0.png)
+![Control Plane Memory usage](diagrams/01_http_max_throughput/control_plane_memory_0.png)
+![Data Plane CPU usage](diagrams/01_http_max_throughput/data_plane_cpu_0.png)
+![Data Plane Memory usage](diagrams/01_http_max_throughput/data_plane_memory_0.png)
 
 ### Constant HTTP Throughput (1000 QPS)
 
-![Latency](diagrams/02_http_constant_throughput/latency_1000.png)
-![Latency error](diagrams/02_http_constant_throughput/latency_error_1000.png)
-![CPU usage](diagrams/02_http_constant_throughput/cpu_1000.png)
-![Memory usage](diagrams/02_http_constant_throughput/memory_1000.png)
+![Latency](diagrams/02_http_constant_throughput/global_latency_1000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_1000.png) -->
+![Control Plane CPU usage](diagrams/02_http_constant_throughput/control_plane_cpu_1000.png)
+![Control Plane Memory usage](diagrams/02_http_constant_throughput/control_plane_memory_1000.png)
+![Data Plane CPU usage](diagrams/02_http_constant_throughput/data_plane_cpu_1000.png)
+![Data Plane Memory usage](diagrams/02_http_constant_throughput/data_plane_memory_1000.png)
 
 ### Constant HTTP Throughput (10000 QPS)
 
-![Latency](diagrams/02_http_constant_throughput/latency_10000.png)
-![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png)
-![CPU usage](diagrams/02_http_constant_throughput/cpu_10000.png)
-![Memory usage](diagrams/02_http_constant_throughput/memory_10000.png)
-
-### Constant HTTP Throughput (100 QPS) with 1 KB Payload
-
-![Latency](diagrams/03_http_payload/latency_100_1000.png)
-![Latency error](diagrams/03_http_payload/latency_error_100_1000.png)
-![CPU usage](diagrams/03_http_payload/cpu_100_1000.png)
-![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
+![Latency](diagrams/02_http_constant_throughput/global_latency_10000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
+![Control Plane CPU usage](diagrams/02_http_constant_throughput/control_plane_cpu_10000.png)
+![Control Plane Memory usage](diagrams/02_http_constant_throughput/control_plane_memory_10000.png)
+![Data Plane CPU usage](diagrams/02_http_constant_throughput/data_plane_cpu_10000.png)
+![Data Plane Memory usage](diagrams/02_http_constant_throughput/data_plane_memory_10000.png)
 
 ### Constant HTTP Throughput (100 QPS) with 10 KB Payload
 
-![Latency](diagrams/03_http_payload/latency_100_0.png)
-![Latency error](diagrams/03_http_payload/latency_error_100_1000.png)
-![CPU usage](diagrams/03_http_payload/cpu_100_0.png)
-![Memory usage](diagrams/03_http_payload/memory_100_1000.png)
+![Latency](diagrams/03_http_payload/global_latency_100_10000.png)
+<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_10000.png) -->
+![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_100_10000.png)
+![Control Planee Memory usage](diagrams/03_http_payload/control_plane_memory_100_10000.png)
+![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_100_10000.png)
+![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_100_10000.png)
+
+### Constant HTTP Throughput (100 QPS) with 100 KB Payload
+
+![Latency](diagrams/03_http_payload/global_latency_100_100000.png)
+<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_100000.png) -->
+![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_100_100000.png)
+![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_100_10000.png)
+![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_100_100000.png)
+![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_100_100000.png)
 
 ### GRPC Max Throughput Test
 
-![Latency](diagrams/04_grpc_max_throughput/latency_0_0.png)
-![Latency error](diagrams/04_grpc_max_throughput/latency_error_0_0.png)
-![CPU usage](diagrams/04_grpc_max_throughput/cpu_0_0.png)
-![Memory usage](diagrams/04_grpc_max_throughput/memory_0_0.png)
+![Latency](diagrams/04_grpc_max_throughput/global_latency_0_0.png)
+<!-- ![Latency error](diagrams/04_grpc_max_throughput/latency_error_0.png) -->
+![Control Plane CPU usage](diagrams/04_grpc_max_throughput/control_plane_cpu_0_0.png)
+![Control Plane Memory usage](diagrams/04_grpc_max_throughput/control_plane_memory_0_0.png)
+![Data Plane CPU usage](diagrams/04_grpc_max_throughput/data_plane_cpu_0_0.png)
+![Data Plane Memory usage](diagrams/04_grpc_max_throughput/data_plane_memory_0_0.png)
 
 # Contributing
 
