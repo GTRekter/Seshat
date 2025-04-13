@@ -37,7 +37,7 @@ RESOLUTION="0.0001"
 METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="baseline" # baseline, istio, linkerd
+MESH="linkerd" # baseline, istio, linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {

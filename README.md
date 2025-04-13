@@ -8,9 +8,15 @@ To collect the metrics, the scripts use the Kubernetes API directly, avoiding th
 
 - **Azure Environment Setup:** Automates the creation of resource groups and AKS clusters using the Azure CLI.
 - **Service Mesh Installation:** Supports installation of both Istio and Linkerd, including CLI setup and control plane deployment.
-- **Fortio Deployment & Load Testing:** Installs Fortio and provides functions to execute HTTP load tests with varying parameters such as queries per second and payload sizes.
+- **Fortio Deployment & Load Testing:** Installs Fortio and provides functions to execute HTTP/gRPC load tests with varying parameters such as queries per second and payload sizes.
 - **Resource Metrics Export:** Collects container-level CPU and memory metrics periodically during load tests.
 - **Color-Coded Logging:** A reusable logging utility for consistent, color-coded log messages to enhance readability and debugging.
+
+# Architecture
+
+The diagram below illustrates the distribution of various resources within the cluster and provides an overview of the test workflow.
+
+[Architecture](./diagrams/achitecture/kubernetes.png)
 
 # Prerequisites
 
@@ -36,8 +42,8 @@ Once the infrastructure is set up, you can start the tests using the `experiment
 - Removing Linkerd annotations,
 - Restarting the Fortio workloads (so that no proxies are injected).
 
-Before each load test, it will start a background job that collects metrics via the Kubernetes API. These metrics are saved to a file corresponding to the specific test. Once the test is completed, the script will automatically stop the metrics collection process.
-To begin an experiment, set the `MESH` variable to your desired service mesh and run the script:
+Before each load test, it will start a background job that collects metrics via the Kubernetes API. These metrics are saved to a file corresponding to the specific test. Once the test is completed, the script will automatically stop the metrics collection process. To begin an experiment, set the `MESH` variable to your desired service mesh and run the script:
+
 ```
 export MESH=istio  # baseline, istio or linkerd
 ./experiments.sh
@@ -51,6 +57,7 @@ To generate diagrams from the Jupyter Notebook (.ipynb) files in the `diagrams/`
 
 For more detailed setup instructions, see the [official VS Code docs](https://code.visualstudio.com/docs/python/environments).
 Once your environment is set up, activate it and install the required Python dependencies:
+
 ```
 source .venv/bin/activate
 pip install pandas
@@ -60,6 +67,7 @@ pip install matplotlib
 Once the environment is set up and dependencies are installed, run the Jupyter Notebooks in the diagrams/ directory. Each notebook processes experimental data to generate up-to-date visual representations of:
 - CPU usage
 - Memory consumption
+
 The outputs include separate diagrams for individual container metrics (covering both data plane components and all containers) as well as consolidated metrics for the control plane.
 This setup ensures you have a reproducible environment for generating, updating, and analyzing the performance diagrams from your experiments.
 
