@@ -30,13 +30,14 @@ FORTIO_SERVER_SVC="fortio-server"
 FORTIO_SERVER_HTTP_PORT="8080"
 FORTIO_SERVER_GRPC_PORT="8079"
 
-DURATION="120s"
+DURATION="180s"
 INTERVAL="1s"
 CONNECTIONS=50
 RESOLUTION="0.0001"
+METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="istio" # baseline, istio, linkerd
+MESH="baseline" # baseline, istio, linkerd
 CONFIG_LOG_LEVEL=DEBUG
 
 function export_resource_metrics {
@@ -76,6 +77,8 @@ function export_resource_metrics {
     fi
     log_message "DEBUG" "Write CSV headers"
     echo "timestamp,group,namespace,pod,container,cpu(n),memory(Ki)" > "$OUTPUT_FILE"
+    log_message "DEBUG" "Sleeping for ${METRICS_INITIAL_DELAY} seconds to allow the load test to ramp up..."
+    sleep "${METRICS_INITIAL_DELAY}"
     log_message "DEBUG" "Collecting CPU/memory metrics every ${INTERVAL}..."
     while true; do
         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -274,7 +277,7 @@ if [ "$MESH" == "istio" ]; then
         kubectl wait --for=condition=ready pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_SERVER_NS --timeout=300s
     fi
 fi
-sleep 10
+sleep 20
 log_message "DEBUG" "Starting HTTP Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
@@ -282,7 +285,7 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
 log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-sleep 10
+sleep 20
 log_message "DEBUG" "Starting HTTP Constant Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
@@ -293,19 +296,20 @@ for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
     fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-     sleep 10
+     sleep 20
 done
 log_message "DEBUG" "Starting HTTP Payload test"
 OUTPUT_DIR="${RESULTS_DIR}/03_http_payload"
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
-PAYLOAD_SIZE_LIST=(10000 100000)
+QUERY_PER_SECOND=1000
+PAYLOAD_SIZE_LIST=(10000 100000 1000000)
 for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
-    fortio_load_test -o $OUTPUT_DIR -m $MESH -q "100" -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
+    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
     log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
-    sleep 10
+    sleep 20
 done
 log_message "DEBUG" "Starting GRPC Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/04_grpc_max_throughput"

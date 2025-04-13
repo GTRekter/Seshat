@@ -109,23 +109,32 @@ The following images are automatically generated and updated by the Jupyter Note
 ![Data Plane CPU usage](diagrams/02_http_constant_throughput/data_plane_cpu_10000.png)
 ![Data Plane Memory usage](diagrams/02_http_constant_throughput/data_plane_memory_10000.png)
 
-### Constant HTTP Throughput (100 QPS) with 10 KB Payload
+### Constant HTTP Throughput (1000 QPS) with 10 KB Payload
 
-![Latency](diagrams/03_http_payload/global_latency_100_10000.png)
+![Latency](diagrams/03_http_payload/global_latency_1000_10000.png)
 <!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_10000.png) -->
-![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_100_10000.png)
-![Control Planee Memory usage](diagrams/03_http_payload/control_plane_memory_100_10000.png)
-![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_100_10000.png)
-![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_100_10000.png)
+![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_10000.png)
+![Control Planee Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
+![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_10000.png)
+![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_10000.png)
 
-### Constant HTTP Throughput (100 QPS) with 100 KB Payload
+### Constant HTTP Throughput (1000 QPS) with 100 KB Payload
 
-![Latency](diagrams/03_http_payload/global_latency_100_100000.png)
-<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_100000.png) -->
-![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_100_100000.png)
-![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_100_10000.png)
-![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_100_100000.png)
-![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_100_100000.png)
+![Latency](diagrams/03_http_payload/global_latency_1000_100000.png)
+<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
+![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_100000.png)
+![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
+![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_100000.png)
+![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_100000.png)
+
+### Constant HTTP Throughput (1000 QPS) with 1 MB Payload
+
+![Latency](diagrams/03_http_payload/global_latency_1000_1000000.png)
+<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
+![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_1000000.png)
+![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_100000.png)
+![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_1000000.png)
+![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_1000000.png)
 
 ### GRPC Max Throughput Test
 
