@@ -84,7 +84,7 @@ The environment is:
 
 Fortio configuration:
 - 50 connections (maximum number of threads)
-- 2-minute duration
+- 3-minute duration
 - 1-second interval metrics
 
 ## Latests Results 
