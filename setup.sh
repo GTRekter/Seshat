@@ -77,7 +77,7 @@ function azure_create_resources {
         --tier free \
         --generate-ssh-keys
     if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to create AKS cluster: $MY_AKS_CLUSTER_NAME"
+        log_message "ERROR" "Failed to create AKS cluster: $AKS_CLUSTER_NAME"
         exit 1
     fi
     log_message "DEBUG" "AKS Cluster created successfully"
@@ -90,7 +90,7 @@ function azure_get_credentials {
         --resource-group $RESOURCE_GROUP_NAME-$AKS_INSTANCE \
         --name $AKS_CLUSTER_NAME
     if [ $? -ne 0 ]; then
-        echo "Failed to get AKS credentials for cluster: $MY_AKS_CLUSTER_NAME"
+        echo "Failed to get AKS credentials for cluster: $AKS_CLUSTER_NAME"
         exit 1
     fi
     log_message "DEBUG" "AKS credentials retrieved successfully"
