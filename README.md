@@ -16,7 +16,7 @@ To collect the metrics, the scripts use the Kubernetes API directly, avoiding th
 
 The diagram below illustrates the distribution of various resources within the cluster and provides an overview of the test workflow.
 
-[Architecture](./diagrams/achitecture/kubernetes.png)
+![Architecture](./diagrams/achitecture/kubernetes.png)
 
 # Prerequisites
 
