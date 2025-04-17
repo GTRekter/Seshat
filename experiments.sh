@@ -38,8 +38,14 @@ METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
 MESH="linkerd" # baseline, istio, linkerd
+ISTIO_VERSION="1.25.1"
+LINKERD_VERSION="edge-25.4.1"
+
 CONFIG_LOG_LEVEL=DEBUG
 
+# ---------------------------------------------------------
+# Functions
+# ---------------------------------------------------------
 function export_resource_metrics {
     OPTIND=1
     local OUTPUT_FILE=""
@@ -175,7 +181,7 @@ function fortio_load_test {
     if [[ "$RUNNER" != "http" ]]; then
         ARGUMENTS+=( "-grpc" )
     fi
-    log_message "TECH" "kubectl exec -n $FORTIO_CLIENT_NS deploy/fortio-client -c fortio -- fortio ${ARGUMENTS[*]} -json - $TARGET"
+    log_message "TECH" "kubectl exec -n \"$FORTIO_CLIENT_NS\" deploy/fortio-client -c fortio -- fortio load \"${ARGUMENTS[@]}\" -json - \"$TARGET\""
     kubectl exec -n "$FORTIO_CLIENT_NS" deploy/fortio-client -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" > "$LATENCY_FILE"
     if [ $? -ne 0 ]; then
         log_message "ERROR" "Error connecting to ${URL}"
@@ -189,33 +195,161 @@ function fortio_load_test {
     fi
 }
 
-function cleanup_environment {
-    log_message "DEBUG" "Deleting existing waypoints in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-    istioctl waypoint delete --all -n $FORTIO_CLIENT_NS
-    istioctl waypoint delete --all -n $FORTIO_SERVER_NS
-    kubectl label ns $FORTIO_CLIENT_NS istio.io/dataplane-mode-
-    kubectl label ns $FORTIO_SERVER_NS istio.io/dataplane-mode-
-    log_message "DEBUG" "Wait for waypoint to be deleted in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-    kubectl wait --for=delete pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_CLIENT_NS --timeout=300s
-    log_message "DEBUG" "Deleting existing linkerd annotations in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-    kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject-
-    kubectl annotate ns $FORTIO_SERVER_NS linkerd.io/inject-
-    kubectl rollout restart deploy -n $FORTIO_CLIENT_NS
-    if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
-        kubectl rollout restart deploy -n $FORTIO_SERVER_NS
+function gateway_api_install {
+    log_message "DEBUG" "Installing Gateway API"
+    log_message "TECH" "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml"
+    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to install Gateway API"
+        exit 1
     fi
-    log_message "DEBUG" "Wait for fortio-client and fortio-server to be ready in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
-    kubectl wait --for=condition=ready pod -l app=fortio-client -n $FORTIO_CLIENT_NS --timeout=300s
-    kubectl wait --for=condition=ready pod -l app=fortio-server -n $FORTIO_SERVER_NS --timeout=300s
+    log_message "DEBUG" "Gateway API installed successfully"
 }
 
+function istio_cli_install {
+    log_message "INFO" "Installing Istio CLI"
+    log_message "DEBUG" "Istio Version: $ISTIO_VERSION"
+    if ! command -v istioctl >/dev/null 2>&1; then
+        log_message "DEBUG" "Installing Istio CLI"
+        log_message "TECH" "curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh"
+        curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh
+        if [ $? -ne 0 ]; then
+            log_message "ERROR" "Failed to install Istio CLI"
+            exit 1
+        fi
+        # cd istio-$ISTIO_VERSION
+        # export PATH=$PWD/bin:$PATH
+        export PATH=istio-$ISTIO_VERSION/bin:$PATH
+    fi
+    log_message "DEBUG" "Istio CLI installed successfully"
+}
+
+function istio_install {
+    log_message "DEBUG" "Installing Istio (Ambient) Control Plane"
+    log_message "TECH" "istioctl install --set profile=ambient --skip-confirmation"
+    istioctl install --set profile=ambient --skip-confirmation
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to install Istio"
+        exit 1
+    fi
+    log_message "DEBUG" "Istio Control Plane (Ambient) installed successfully"
+}
+
+function istio_uninstall {
+    log_message "DEBUG" "Removing all Istio Waypoints"
+    log_message "TECH" "istioctl waypoint delete --all"
+    istioctl waypoint delete --all
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to delete Istio waypoint"
+        exit 1
+    fi
+    log_message "DEBUG" "Istio waypoint removed successfully"
+
+    log_message "DEBUG" "Uninstalling Istio Control Plane"
+    log_message "TECH" "istioctl uninstall --skip-confirmation --purge"
+    istioctl uninstall --skip-confirmation --purge
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to uninstall Istio Control Plane"
+        exit 1
+    fi
+    log_message "DEBUG" "Istio Control Plane uninstalled successfully"
+}
+
+function linkerd_cli_install {
+    log_message "INFO" "Installing Linkerd CLI"
+    log_message "DEBUG" "Linkerd Version: $LINKERD_VERSION"
+    if ! command -v linkerd >/dev/null 2>&1; then
+        log_message "DEBUG" "Installing Linkerd CLI"
+        log_message "TECH" "curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install-edge | LINKERD_VERSION=$LINKERD_VERSION sh"
+        curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install-edge | LINKERD_VERSION=$LINKERD_VERSION sh
+        if [ $? -ne 0 ]; then
+            log_message "ERROR" "Failed to install Linkerd CLI"
+            exit 1
+        fi
+        export PATH=$PATH:$HOME/.linkerd2/bin
+    else
+        log_message "DEBUG" "Linkerd CLI installed successfully"
+    fi
+}
+
+function linkerd_install {
+    log_message "DEBUG" "Installing Linkerd CRDs"
+    log_message "TECH" "linkerd check --crds | kubectl apply -f -"
+    linkerd install --crds | kubectl apply -f -
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to install Linkerd CRDs"
+        exit 1
+    fi
+    log_message "DEBUG" "Linkerd CRDs installed successfully"
+
+    log_message "DEBUG" "Installing Linkerd Control Plane"
+    log_message "TECH" "linkerd install | kubectl apply -f -"
+    linkerd install | kubectl apply -f -
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to install Linkerd"
+        exit 1
+    fi
+    log_message "DEBUG" "Waiting for Linkerd pods to be ready in namespace 'linkerd'"
+    log_message "TECH"  "kubectl wait --for=condition=Ready pod --all -n linkerd --timeout=300s"
+    if ! kubectl wait --for=condition=Ready pod --all -n linkerd --timeout=300s; then
+        log_message "ERROR" "Some Linkerd pods failed to become ready within 5m"
+        exit 1
+    fi
+    log_message "DEBUG" "Linkerd Control Plane installed successfully"
+}
+
+function linkerd_uninstall {
+    log_message "DEBUG" "Uninstalling Linkerd Control Plane"
+    log_message "TECH" "linkerd uninstall | kubectl delete -f -"
+    linkerd uninstall | kubectl delete -f -
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to uninstall Linkerd Control Plane"
+        exit 1
+    fi
+    log_message "DEBUG" "Linkerd Control Plane uninstalled successfully"
+}
+
+function fortio_install {
+    log_message "INFO" "Installing Fortio"
+    log_message "TECH" "kubectl apply -f ./manifests/fortio.yaml"
+    kubectl apply -f ./manifests/fortio.yaml
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to install Fortio"
+        exit 1
+    fi
+    log_message "DEBUG" "Fortio installed successfully"
+}
+
+function fortio_uninstall {
+    log_message "INFO" "Uninstall Fortio"
+    log_message "TECH" "kubectl delete -f ./manifests/fortio.yaml --ignore-not-found"
+    kubectl delete -f ./manifests/fortio.yaml --ignore-not-found
+    if [ $? -ne 0 ]; then
+        log_message "ERROR" "Failed to uninstall Fortio"
+        exit 1
+    fi
+    log_message "DEBUG" "Fortio installed successfully"
+}
+
+# ---------------------------------------------------------
+# Check if the required tools are installed
+# ---------------------------------------------------------
 trap terminate_export_resource_metrics_process EXIT INT TERM
+istio_cli_install
+linkerd_cli_install
+gateway_api_install
+fortio_uninstall
+istio_uninstall
+linkerd_uninstall
+fortio_install
+
 log_message "INFO" "Checking if the required tools are installed..."
 if [ -z "$MESH" ] || { [ "$MESH" != "istio" ] && [ "$MESH" != "linkerd" ] && [ "$MESH" != "baseline" ]; }; then
     log_message "ERROR" "Invalid or missing mesh type. Please set the MESH variable to 'istio', 'linkerd' or 'baseline'."
     exit 1
 fi
 if [ "$MESH" == "istio" ]; then
+    istio_install
     if ! kubectl get pods -n "istio-system" | grep -q "istio"; then
         log_message "ERROR" "Istio is not deployed in namespace istio-system"
         exit 1
@@ -224,45 +358,6 @@ if [ "$MESH" == "istio" ]; then
         log_message "ERROR" "ztunnel is not deployed in namespace istio-system"
         exit 1
     fi
-    if ! command -v istioctl >/dev/null 2>&1; then
-        log_message "ERROR" "istioctl could not be found. You can install the Istio CLI by running the following commands:"
-        log_message "ERROR" "   cd istio-1.25.1"
-        log_message "ERROR" "   export PATH=\$(pwd)/bin:\$PATH"
-        exit 1
-    fi
-fi
-if [ "$MESH" == "linkerd" ]; then
-    if ! kubectl get pods -n "linkerd" | grep -q "linkerd"; then
-        log_message "ERROR" "Linkerd is not deployed in namespace linkerd"
-        exit 1
-    fi
-    if ! command -v linkerd >/dev/null 2>&1; then
-        log_message "ERROR" "linkerd could not be found. You can install Linkerd CLI by running the following command:"
-        log_message "ERROR" "   export PATH=\$PATH:\$HOME/.linkerd2/bin"
-        exit 1
-    fi
-fi
-if ! kubectl get pods -n $FORTIO_CLIENT_NS | grep -q "fortio-client"; then
-    log_message "ERROR" "Fortio client is not deployed in namespace $FORTIO_CLIENT_NS"
-    exit 1
-fi
-if ! kubectl get pods -n $FORTIO_SERVER_NS | grep -q "fortio-server"; then
-    log_message "ERROR" "Fortio server is not deployed in namespace $FORTIO_SERVER_NS"
-    exit 1
-fi
-log_message "INFO" "All required tools are installed"
-log_message "INFO" "Starting the experiment..."
-cleanup_environment
-if [ "$MESH" == "linkerd" ]; then
-    log_message "INFO" "Injecting Linkerd proxy into Fortio client and server"
-    kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject=enabled
-    kubectl rollout restart deploy -n $FORTIO_CLIENT_NS
-    if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
-        kubectl annotate ns $FORTIO_SERVER_NS linkerd.io/inject=enabled
-        kubectl rollout restart deploy -n $FORTIO_SERVER_NS
-    fi
-fi
-if [ "$MESH" == "istio" ]; then
     log_message "INFO" "Deploying Waypoint into Fortio client and server"
     kubectl label ns $FORTIO_CLIENT_NS istio.io/dataplane-mode=ambient
     istioctl waypoint apply -n $FORTIO_CLIENT_NS --enroll-namespace --overwrite
@@ -277,7 +372,34 @@ if [ "$MESH" == "istio" ]; then
         kubectl wait --for=condition=ready pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_SERVER_NS --timeout=300s
     fi
 fi
+if [ "$MESH" == "linkerd" ]; then
+    linkerd_install
+    if ! kubectl get pods -n "linkerd" | grep -q "linkerd"; then
+        log_message "ERROR" "Linkerd is not deployed in namespace linkerd"
+        exit 1
+    fi
+    log_message "INFO" "Injecting Linkerd proxy into Fortio client and server"
+    kubectl annotate ns $FORTIO_CLIENT_NS linkerd.io/inject=enabled
+    kubectl rollout restart deploy -n $FORTIO_CLIENT_NS
+    if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
+        kubectl annotate ns $FORTIO_SERVER_NS linkerd.io/inject=enabled
+        kubectl rollout restart deploy -n $FORTIO_SERVER_NS
+    fi
+fi
+if ! kubectl get pods -n $FORTIO_CLIENT_NS | grep -q "fortio-client"; then
+    log_message "ERROR" "Fortio client is not deployed in namespace $FORTIO_CLIENT_NS"
+    exit 1
+fi
+if ! kubectl get pods -n $FORTIO_SERVER_NS | grep -q "fortio-server"; then
+    log_message "ERROR" "Fortio server is not deployed in namespace $FORTIO_SERVER_NS"
+    exit 1
+fi
+log_message "INFO" "All required tools are installed"
 sleep 20
+
+# ---------------------------------------------------------
+# Run the experiments
+# ---------------------------------------------------------
 log_message "DEBUG" "Starting HTTP Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then

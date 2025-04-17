@@ -19,7 +19,8 @@ source "$(dirname "$0")/utilities.sh"
 # ---------------------------------------------------------
 # Variables
 # ---------------------------------------------------------
-AZURE_SUBSCRIPTION_NAME="Microsoft VSES"
+# AZURE_SUBSCRIPTION_NAME="Microsoft VSES"
+AZURE_SUBSCRIPTION_NAME="Visual Studio Enterprise Subscription"
 RESOURCE_GROUP_NAME=rg-training-krc
 REGION="koreacentral"
 AKS_INSTANCE=001
@@ -27,9 +28,6 @@ AKS_CLUSTER_NAME="aks-training-krc-$AKS_INSTANCE"
 AKS_KUBERNETES_VERSION="1.30.10"
 AKS_NODE_SIZE="Standard_D4_v5"
 AKS_NODE_COUNT=2
-
-ISTIO_VERSION="1.25.1"
-LINKERD_VERSION="edge-25.4.1"
 
 # ---------------------------------------------------------
 # Functions
@@ -96,84 +94,6 @@ function azure_get_credentials {
     log_message "DEBUG" "AKS credentials retrieved successfully"
 }
 
-function istio_install {
-    log_message "INFO" "Installing Istio"
-    log_message "DEBUG" "Istio Version: $ISTIO_VERSION"
-
-    log_message "DEBUG" "Installing Istio CLI"
-    log_message "TECH" "curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh"
-    curl -L https://istio.io/downloadIstio | ISTIO_VERSION=$ISTIO_VERSION sh
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Istio CLI"
-        exit 1
-    fi
-    log_message "DEBUG" "Istio CLI installed successfully"
-    cd istio-$ISTIO_VERSION
-    export PATH=$PWD/bin:$PATH
-
-    log_message "DEBUG" "Installing Istio control plane"
-    log_message "TECH" "istioctl install --set profile=ambient --skip-confirmation"
-    istioctl install --set profile=ambient --skip-confirmation
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Istio"
-        exit 1
-    fi
-    log_message "DEBUG" "Istio control plane installed successfully"
-}
-
-function linkerd_install {
-    log_message "INFO" "Installing Linkerd"
-    log_message "DEBUG" "Linkerd Version: $LINKERD_VERSION"
-
-    log_message "DEBUG" "Installing Linkerd CLI"
-    log_message "TECH" "curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install-edge | LINKERD_VERSION=$LINKERD_VERSION sh"
-    curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install-edge | LINKERD_VERSION=$LINKERD_VERSION sh
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Linkerd CLI"
-        exit 1
-    fi
-    log_message "DEBUG" "Linkerd CLI installed successfully"
-    export PATH=$PATH:$HOME/.linkerd2/bin
-
-    log_message "DEBUG" "Installing Gateway API"
-    log_message "TECH" "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml"
-    kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Gateway API"
-        exit 1
-    fi
-    log_message "DEBUG" "Gateway API installed successfully"
-
-    log_message "DEBUG" "Installing Linkerd CRDs"
-    log_message "TECH" "linkerd check --crds | kubectl apply -f -"
-    linkerd install --crds | kubectl apply -f -
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Linkerd CRDs"
-        exit 1
-    fi
-    log_message "DEBUG" "Linkerd CRDs installed successfully"
-
-    log_message "DEBUG" "Installing Linkerd control plane"
-    log_message "TECH" "linkerd install | kubectl apply -f -"
-    linkerd install | kubectl apply -f -
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Linkerd"
-        exit 1
-    fi
-    log_message "DEBUG" "Linkerd control plane installed successfully"
-}
-
-function fortio_install {
-    log_message "INFO" "Installing Fortio"
-    log_message "TECH" "kubectl apply -f ./manifests/fortio.yaml"
-    kubectl apply -f ./manifests/fortio.yaml
-    if [ $? -ne 0 ]; then
-        log_message "ERROR" "Failed to install Fortio"
-        exit 1
-    fi
-    log_message "DEBUG" "Fortio installed successfully"
-}
-
 function fortio_taint_node {
     log_message "INFO" "Tainting one node for Fortio"
     FORTIO_NODE=$(kubectl get nodes -o name | head -n 1 | cut -d'/' -f2)
@@ -182,9 +102,9 @@ function fortio_taint_node {
     kubectl taint node $FORTIO_NODE dedicated=fortio:NoSchedule --overwrite
 }
 
+# ---------------------------------------------------------
+# Main script execution
+# ---------------------------------------------------------
 azure_create_resources
 azure_get_credentials
 fortio_taint_node
-istio_install
-linkerd_install
-fortio_install
