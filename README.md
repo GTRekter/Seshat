@@ -81,6 +81,7 @@ The environment is:
 - Microsoft AKS running Kubernetes 1.30.10
 - 2 Standard_D4_v5 nodes (32 GiB Memory, 8 vCPUs) running Ubuntu Linux
 - Fortio 1.69.1
+- Istio Waypoiny deployed in the same node as the Fortio Client/Server pods.
 
 Fortio configuration:
 - 50 connections (maximum number of threads)
@@ -88,7 +89,7 @@ Fortio configuration:
 - 1-second interval metrics
 
 ## Latests Results 
-The following images are automatically generated and updated by the Jupyter Notebook during each iteration.
+The following images are automatically generated and updated by the Jupyter Notebook during each iteration. 
 
 ### HTTP Max Throughput Test
 
@@ -119,7 +120,7 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### Constant HTTP Throughput (1000 QPS) with 10 KB Payload
 
-![Latency](diagrams/03_http_payload/global_latency_1000_10000.png)
+![Latency](diagrams/03_http_payload/global_latency_100_10000.png)
 <!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_10000.png) -->
 ![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_10000.png)
 ![Control Planee Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
@@ -128,7 +129,7 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### Constant HTTP Throughput (1000 QPS) with 100 KB Payload
 
-![Latency](diagrams/03_http_payload/global_latency_1000_100000.png)
+![Latency](diagrams/03_http_payload/global_latency_100_100000.png)
 <!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
 ![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_100000.png)
 ![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
@@ -137,7 +138,7 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### Constant HTTP Throughput (1000 QPS) with 1 MB Payload
 
-![Latency](diagrams/03_http_payload/global_latency_1000_1000000.png)
+![Latency](diagrams/03_http_payload/global_latency_100_1000000.png)
 <!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
 ![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_1000000.png)
 ![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_100000.png)

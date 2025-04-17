@@ -37,7 +37,7 @@ RESOLUTION="0.0001"
 METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="istio" # baseline, istio, linkerd
+MESH="baseline" # baseline, istio, linkerd
 ISTIO_VERSION="1.25.1"
 ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
