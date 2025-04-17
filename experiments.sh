@@ -37,8 +37,9 @@ RESOLUTION="0.0001"
 METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="linkerd" # baseline, istio, linkerd
+MESH="istio" # baseline, istio, linkerd
 ISTIO_VERSION="1.25.1"
+ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
 
 CONFIG_LOG_LEVEL=DEBUG
@@ -358,6 +359,7 @@ if [ "$MESH" == "istio" ]; then
         log_message "ERROR" "ztunnel is not deployed in namespace istio-system"
         exit 1
     fi
+
     log_message "INFO" "Deploying Waypoint into Fortio client and server"
     kubectl label ns $FORTIO_CLIENT_NS istio.io/dataplane-mode=ambient
     istioctl waypoint apply -n $FORTIO_CLIENT_NS --enroll-namespace --overwrite
@@ -366,6 +368,20 @@ if [ "$MESH" == "istio" ]; then
         istioctl waypoint apply -n $FORTIO_SERVER_NS --enroll-namespace --overwrite
     fi
     sleep 5
+    if [[ "$ISTIO_WAYPOINT_PLACEMENT" == "same" ]]; then
+        log_message "DEBUG" "Patching Istio Waypoint to nodeSelector dedicated=fortio"
+        log_message "TECH" "kubectl -n $FORTIO_CLIENT_NS patch deployment waypoint --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/nodeSelector\",\"value\":{\"dedicated\":\"fortio\"}}]'"
+        kubectl -n "$FORTIO_CLIENT_NS" patch deployment waypoint --type='json' -p='[{"op":"add","path":"/spec/template/spec/nodeSelector","value":{"dedicated":"fortio"}}]'
+        log_message "TECH" "kubectl -n $FORTIO_CLIENT_NS patch deployment waypoint --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/tolerations\",\"value\":[{\"key\":\"dedicated\",\"operator\":\"Equal\",\"value\":\"fortio\",\"effect\":\"NoSchedule\"}]}]'"
+        kubectl -n "$FORTIO_CLIENT_NS" patch deployment waypoint --type='json' -p='[{"op":"add","path":"/spec/template/spec/tolerations","value":[{"key":"dedicated","operator":"Equal","value":"fortio","effect":"NoSchedule"}]}]'
+        if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
+            log_message "TECH" "kubectl -n $FORTIO_SERVER_NS patch deployment waypoint --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/nodeSelector\",\"value\":{\"dedicated\":\"fortio\"}}]'"
+            kubectl -n "$FORTIO_SERVER_NS" patch deployment waypoint --type='json' -p='[{"op":"add","path":"/spec/template/spec/nodeSelector","value":{"dedicated":"fortio"}}]'
+            log_message "TECH" "kubectl -n $FORTIO_SERVER_NS patch deployment waypoint --type='json' -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/tolerations\",\"value\":[{\"key\":\"dedicated\",\"operator\":\"Equal\",\"value\":\"fortio\",\"effect\":\"NoSchedule\"}]}]'"
+            kubectl -n "$FORTIO_SERVER_NS" patch deployment waypoint --type='json' -p='[{"op":"add","path":"/spec/template/spec/tolerations","value":[{"key":"dedicated","operator":"Equal","value":"fortio","effect":"NoSchedule"}]}]'
+        fi
+    fi
+    
     log_message "DEBUG" "Waiting for waypoint to be ready in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
     kubectl wait --for=condition=ready pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_CLIENT_NS --timeout=300s
     if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
