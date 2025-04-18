@@ -154,6 +154,43 @@ The following images are automatically generated and updated by the Jupyter Note
 ![Data Plane CPU usage](diagrams/04_grpc_max_throughput/data_plane_cpu_0_0.png)
 ![Data Plane Memory usage](diagrams/04_grpc_max_throughput/data_plane_memory_0_0.png)
 
+### Constant HTTP Throughput and HTTPRoute Header-based routing (1000 QPS)
+
+![Latency](diagrams/05_http_constant_throughput_header/global_latency_1000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
+![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_1000.png)
+![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_1000.png)
+![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_1000.png)
+![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_1000.png)
+
+
+### Constant HTTP Throughput and HTTPRoute Header-based routing (10000 QPS)
+
+![Latency](diagrams/05_http_constant_throughput_header/global_latency_10000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
+![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_10000.png)
+![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_10000.png)
+![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_10000.png)
+![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_10000.png)
+
+### Constant HTTP Throughput and HTTPRoute Header-based routing (100000 QPS)
+
+![Latency](diagrams/05_http_constant_throughput_header/global_latency_100000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_100000.png) -->
+![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_100000.png)
+![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_100000.png)
+![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_100000.png)
+![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_100000.png)
+
+### Constant HTTP Throughput and HTTPRoute Header-based routing (1000000 QPS)
+
+![Latency](diagrams/05_http_constant_throughput_header/global_latency_1000000.png)
+<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_1000000.png) -->
+![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_1000000.png)
+![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_1000000.png)
+![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_1000000.png)
+![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_1000000.png)
+
 # Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements. For major changes, please open an issue first to discuss what you would like to change.

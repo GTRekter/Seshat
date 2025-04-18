@@ -37,7 +37,7 @@ RESOLUTION="0.0001"
 METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="baseline" # baseline, istio, linkerd
+MESH="linkerd" # baseline, istio, linkerd
 ISTIO_VERSION="1.25.1"
 ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
@@ -130,7 +130,8 @@ function fortio_load_test {
     local PAYLOAD_SIZE="0"
     local RESOLUTION="0.0001"
     local RUNNER="http"
-    while getopts "o:m:q:d:c:p:r:u:" opt; do
+    local -a HEADERS=()
+    while getopts "o:m:q:d:c:p:r:u:h:" opt; do
         case $opt in
             o) OUTPUT_DIR="$OPTARG" ;;
             m) MESH="$OPTARG" ;;
@@ -140,6 +141,7 @@ function fortio_load_test {
             p) PAYLOAD_SIZE="$OPTARG" ;;
             r) RESOLUTION="$OPTARG" ;;
             u) RUNNER="$OPTARG" ;;
+            h) HEADERS+=( -H "${OPTARG}" );;
             *) echo "Invalid option: -$OPTARG" >&2; return 1 ;;
         esac
     done
@@ -157,6 +159,7 @@ function fortio_load_test {
     log_message "DEBUG" "Payload Size: ${PAYLOAD_SIZE}"
     log_message "DEBUG" "Resolution: ${RESOLUTION}"
     log_message "DEBUG" "Runner: ${RUNNER}"
+    log_message "DEBUG" "Headers: ${HEADERS[@]}"
     if [[ "$RUNNER" == "http" ]]; then
         TARGET="http://${FORTIO_SERVER_SVC}.${FORTIO_SERVER_NS}.svc.${CLUSTER_DOMAIN}:${FORTIO_SERVER_HTTP_PORT}"
     else
@@ -181,6 +184,9 @@ function fortio_load_test {
     fi
     if [[ "$RUNNER" != "http" ]]; then
         ARGUMENTS+=( "-grpc" )
+    fi
+    if [[ ${#HEADERS[@]} -gt 0 ]]; then
+        ARGUMENTS+=( "${HEADERS[@]}" )
     fi
     log_message "TECH" "kubectl exec -n \"$FORTIO_CLIENT_NS\" deploy/fortio-client -c fortio -- fortio load \"${ARGUMENTS[@]}\" -json - \"$TARGET\""
     kubectl exec -n "$FORTIO_CLIENT_NS" deploy/fortio-client -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" > "$LATENCY_FILE"
@@ -381,7 +387,7 @@ if [ "$MESH" == "istio" ]; then
             kubectl -n "$FORTIO_SERVER_NS" patch deployment waypoint --type='json' -p='[{"op":"add","path":"/spec/template/spec/tolerations","value":[{"key":"dedicated","operator":"Equal","value":"fortio","effect":"NoSchedule"}]}]'
         fi
     fi
-    
+    sleep 5
     log_message "DEBUG" "Waiting for waypoint to be ready in $FORTIO_CLIENT_NS and $FORTIO_SERVER_NS"
     kubectl wait --for=condition=ready pod -l service.istio.io/canonical-name=waypoint -n $FORTIO_CLIENT_NS --timeout=300s
     if [[ $FORTIO_CLIENT_NS != "$FORTIO_SERVER_NS" ]]; then
@@ -402,14 +408,6 @@ if [ "$MESH" == "linkerd" ]; then
         kubectl rollout restart deploy -n $FORTIO_SERVER_NS
     fi
 fi
-if ! kubectl get pods -n $FORTIO_CLIENT_NS | grep -q "fortio-client"; then
-    log_message "ERROR" "Fortio client is not deployed in namespace $FORTIO_CLIENT_NS"
-    exit 1
-fi
-if ! kubectl get pods -n $FORTIO_SERVER_NS | grep -q "fortio-server"; then
-    log_message "ERROR" "Fortio server is not deployed in namespace $FORTIO_SERVER_NS"
-    exit 1
-fi
 log_message "INFO" "All required tools are installed"
 sleep 20
 
@@ -422,7 +420,7 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
 fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
-log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
 sleep 20
 log_message "DEBUG" "Starting HTTP Constant Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
@@ -433,7 +431,7 @@ QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
 for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
     fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
-    log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+    log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
      sleep 20
 done
 log_message "DEBUG" "Starting HTTP Payload test"
@@ -446,7 +444,7 @@ PAYLOAD_SIZE_LIST=(10000 100000 1000000)
 for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
     fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
-    log_message "DEBUG" "Wait 5 seconds to clean up the metrics"
+    log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
     sleep 20
 done
 log_message "DEBUG" "Starting GRPC Max Throughput test"
@@ -455,4 +453,24 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
 fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
+log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+sleep 20
+if [ "$MESH" != "baseline" ]; then
+    log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header‑based routing test"
+    OUTPUT_DIR="${RESULTS_DIR}/05_http_constant_throughput_header"
+    if [ ! -d "$OUTPUT_DIR" ]; then
+        mkdir -p "$OUTPUT_DIR"
+    fi
+    kubectl apply -f ./manifests/httproute.yaml
+    QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
+    for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+        log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+        fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"
+        log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+        sleep 20
+    done
+    kubectl delete -f ./manifests/httproute.yaml
+else
+    log_message "DEBUG" "Skipping HTTPRoute header-based routing test for baseline mesh"
+fi
 log_message "SUCCESS" "Experiment completed successfully!"

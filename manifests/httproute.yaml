@@ -1,0 +1,23 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: fortio-server-route
+  namespace: service-mesh-benchmark
+spec:
+  parentRefs:
+  - group: ""
+    kind: Service
+    name: fortio-server
+    port: 8080
+  rules:
+  - matches:
+    - headers:
+      - name: x-benchmark-group
+        type: Exact
+        value: fortio
+    backendRefs:
+    - name: fortio-server
+      port: 8080
+  - backendRefs:
+    - name: fortio-server
+      port: 8080
