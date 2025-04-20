@@ -37,7 +37,7 @@ RESOLUTION="0.0001"
 METRICS_INITIAL_DELAY=30
 RESULTS_DIR="./results"
 
-MESH="linkerd" # baseline, istio, linkerd
+MESH="baseline" # baseline, istio, linkerd
 ISTIO_VERSION="1.25.1"
 ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
@@ -141,7 +141,7 @@ function fortio_load_test {
             p) PAYLOAD_SIZE="$OPTARG" ;;
             r) RESOLUTION="$OPTARG" ;;
             u) RUNNER="$OPTARG" ;;
-            h) HEADERS+=( -H "${OPTARG}" );;
+            h) HEADERS+=( -H "$OPTARG" ) ;;
             *) echo "Invalid option: -$OPTARG" >&2; return 1 ;;
         esac
     done
@@ -159,7 +159,7 @@ function fortio_load_test {
     log_message "DEBUG" "Payload Size: ${PAYLOAD_SIZE}"
     log_message "DEBUG" "Resolution: ${RESOLUTION}"
     log_message "DEBUG" "Runner: ${RUNNER}"
-    log_message "DEBUG" "Headers: ${HEADERS[@]}"
+    log_message "DEBUG" "Headers: ${HEADERS[@]:-none}"
     if [[ "$RUNNER" == "http" ]]; then
         TARGET="http://${FORTIO_SERVER_SVC}.${FORTIO_SERVER_NS}.svc.${CLUSTER_DOMAIN}:${FORTIO_SERVER_HTTP_PORT}"
     else
@@ -185,7 +185,7 @@ function fortio_load_test {
     if [[ "$RUNNER" != "http" ]]; then
         ARGUMENTS+=( "-grpc" )
     fi
-    if [[ ${#HEADERS[@]} -gt 0 ]]; then
+    if (( ${#HEADERS[@]} )); then
         ARGUMENTS+=( "${HEADERS[@]}" )
     fi
     log_message "TECH" "kubectl exec -n \"$FORTIO_CLIENT_NS\" deploy/fortio-client -c fortio -- fortio load \"${ARGUMENTS[@]}\" -json - \"$TARGET\""
@@ -414,6 +414,7 @@ sleep 20
 # ---------------------------------------------------------
 # Run the experiments
 # ---------------------------------------------------------
+# HTTP Max throughput experiment (experiment 1).
 log_message "DEBUG" "Starting HTTP Max Throughput test"
 OUTPUT_DIR="${RESULTS_DIR}/01_http_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
@@ -422,20 +423,47 @@ fi
 fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
 log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
 sleep 20
-log_message "DEBUG" "Starting HTTP Constant Throughput test"
-OUTPUT_DIR="${RESULTS_DIR}/02_http_constant_throughput"
+
+# gRPC Max throughput experiment (experiment 2).
+log_message "DEBUG" "Starting GRPC Max Throughput test"
+OUTPUT_DIR="${RESULTS_DIR}/02_grpc_max_throughput"
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
-QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
+fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
+log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+sleep 20
+
+# HTTP Constant throughput experiment (experiment 3).
+log_message "DEBUG" "Starting HTTP Constant Throughput test"
+QUERY_PER_SECOND_LIST=(1 1000 5000 8000)
+OUTPUT_DIR="${RESULTS_DIR}/03_http_constant_throughput"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
 for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
     log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
     fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
      sleep 20
 done
+
+# gRPC Constant throughput experiment (experiment 4).
+log_message "DEBUG" "Starting gRPC Constant Throughput test"
+OUTPUT_DIR="${RESULTS_DIR}/04_grpc_constant_throughput"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR"
+fi
+for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -u "grpc"
+    log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    sleep 20
+done
+
+# HTTP Constant throughput with Payload experiment (experiment 5).
 log_message "DEBUG" "Starting HTTP Payload test"
-OUTPUT_DIR="${RESULTS_DIR}/03_http_payload"
+OUTPUT_DIR="${RESULTS_DIR}/05_http_payload"
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR"
 fi
@@ -447,22 +475,16 @@ for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
     sleep 20
 done
-log_message "DEBUG" "Starting GRPC Max Throughput test"
-OUTPUT_DIR="${RESULTS_DIR}/04_grpc_max_throughput"
-if [ ! -d "$OUTPUT_DIR" ]; then
-    mkdir -p "$OUTPUT_DIR"
-fi
-fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
-log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-sleep 20
+
+# HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
 if [ "$MESH" != "baseline" ]; then
-    log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header‑based routing test"
-    OUTPUT_DIR="${RESULTS_DIR}/05_http_constant_throughput_header"
+    log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header-based routing test"
+    OUTPUT_DIR="${RESULTS_DIR}/06_http_constant_throughput_header"
     if [ ! -d "$OUTPUT_DIR" ]; then
         mkdir -p "$OUTPUT_DIR"
     fi
     kubectl apply -f ./manifests/httproute.yaml
-    QUERY_PER_SECOND_LIST=(1 1000 10000 100000 1000000)
+    QUERY_PER_SECOND_LIST=(1 1000 5000 8000)
     for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
         log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"

@@ -91,105 +91,133 @@ Fortio configuration:
 ## Latests Results 
 The following images are automatically generated and updated by the Jupyter Notebook during each iteration. 
 
-### HTTP Max Throughput Test
+### Experiment 1 (HTTP Max Throughput Test)
 
-![Latency](diagrams/01_http_max_throughput/global_latency_0.png)
-<!-- ![Latency error](diagrams/01_http_max_throughput/latency_error_0.png) -->
-![Control Plane CPU usage](diagrams/01_http_max_throughput/control_plane_cpu_0.png)
-![Control Plane Memory usage](diagrams/01_http_max_throughput/control_plane_memory_0.png)
-![Data Plane CPU usage](diagrams/01_http_max_throughput/data_plane_cpu_0.png)
-![Data Plane Memory usage](diagrams/01_http_max_throughput/data_plane_memory_0.png)
+![Actual QPS](diagrams/01_http_max_throughput/actual_qps.png)
 
-### Constant HTTP Throughput (1000 QPS)
+#### Latency
 
-![Latency](diagrams/02_http_constant_throughput/global_latency_1000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_1000.png) -->
-![Control Plane CPU usage](diagrams/02_http_constant_throughput/control_plane_cpu_1000.png)
-![Control Plane Memory usage](diagrams/02_http_constant_throughput/control_plane_memory_1000.png)
-![Data Plane CPU usage](diagrams/02_http_constant_throughput/data_plane_cpu_1000.png)
-![Data Plane Memory usage](diagrams/02_http_constant_throughput/data_plane_memory_1000.png)
+![Baseline Latency](diagrams/01_http_max_throughput/latency_baseline.png)
+![Istio Latency](diagrams/01_http_max_throughput/latency_istio.png)
+![Linkerd Latency](diagrams/01_http_max_throughput/latency_linkerd.png)
 
-### Constant HTTP Throughput (10000 QPS)
+#### Resources Consumption
 
-![Latency](diagrams/02_http_constant_throughput/global_latency_10000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
-![Control Plane CPU usage](diagrams/02_http_constant_throughput/control_plane_cpu_10000.png)
-![Control Plane Memory usage](diagrams/02_http_constant_throughput/control_plane_memory_10000.png)
-![Data Plane CPU usage](diagrams/02_http_constant_throughput/data_plane_cpu_10000.png)
-![Data Plane Memory usage](diagrams/02_http_constant_throughput/data_plane_memory_10000.png)
+![Control Plane CPU usage](diagrams/01_http_max_throughput/metrics_control_plane_cpu_0.png)
+![Control Plane Memory usage](diagrams/01_http_max_throughput/metrics_control_plane_memory_0.png)
+![Data Plane CPU usage](diagrams/01_http_max_throughput/metrics_data_plane_cpu_0.png)
+![Data Plane Memory usage](diagrams/01_http_max_throughput/metrics_data_plane_memory_0.png)
 
-### Constant HTTP Throughput (1000 QPS) with 10 KB Payload
+### Experiment 2 (gRPC Max Throughput Test)
 
-![Latency](diagrams/03_http_payload/global_latency_100_10000.png)
-<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_100_10000.png) -->
-![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_10000.png)
-![Control Planee Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
-![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_10000.png)
-![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_10000.png)
+![Actual QPS](diagrams/02_grpc_max_throughput/actual_qps.png)
 
-### Constant HTTP Throughput (1000 QPS) with 100 KB Payload
+#### Latency
 
-![Latency](diagrams/03_http_payload/global_latency_100_100000.png)
-<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
-![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_100000.png)
-![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_10000.png)
-![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_100000.png)
-![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_100000.png)
+![Baseline Latency](diagrams/02_grpc_max_throughput/latency_baseline.png)
+![Istio Latency](diagrams/02_grpc_max_throughput/latency_istio.png)
+![Linkerd Latency](diagrams/02_grpc_max_throughput/latency_linkerd.png)
 
-### Constant HTTP Throughput (1000 QPS) with 1 MB Payload
+#### Resources Consumption
 
-![Latency](diagrams/03_http_payload/global_latency_100_1000000.png)
-<!-- ![Latency error](diagrams/03_http_payload/global_latency_error_1000_100000.png) -->
-![Control Plane CPU usage](diagrams/03_http_payload/control_plane_cpu_1000_1000000.png)
-![Control Plane Memory usage](diagrams/03_http_payload/control_plane_memory_1000_100000.png)
-![Data Plane CPU usage](diagrams/03_http_payload/data_plane_cpu_1000_1000000.png)
-![Data Plane Memory usage](diagrams/03_http_payload/data_plane_memory_1000_1000000.png)
+![Control Plane CPU usage](diagrams/02_grpc_max_throughput/metrics_control_plane_cpu_0.png)
+![Control Plane Memory usage](diagrams/02_grpc_max_throughput/metrics_control_plane_memory_0.png)
+![Data Plane CPU usage](diagrams/02_grpc_max_throughput/metrics_data_plane_cpu_0.png)
+![Data Plane Memory usage](diagrams/02_grpc_max_throughput/metrics_data_plane_memory_0.png)
 
-### GRPC Max Throughput Test
+### Experiment 3 (HTTP Constant Throughput Test)
 
-![Latency](diagrams/04_grpc_max_throughput/global_latency_0_0.png)
-<!-- ![Latency error](diagrams/04_grpc_max_throughput/latency_error_0.png) -->
-![Control Plane CPU usage](diagrams/04_grpc_max_throughput/control_plane_cpu_0_0.png)
-![Control Plane Memory usage](diagrams/04_grpc_max_throughput/control_plane_memory_0_0.png)
-![Data Plane CPU usage](diagrams/04_grpc_max_throughput/data_plane_cpu_0_0.png)
-![Data Plane Memory usage](diagrams/04_grpc_max_throughput/data_plane_memory_0_0.png)
+#### Latency
 
-### Constant HTTP Throughput and HTTPRoute Header-based routing (1000 QPS)
+![1000 QPS Latency](diagrams/03_http_constant_throughput/latency_1000_0.png)
+![5000 QPS Latency](diagrams/03_http_constant_throughput/latency_5000_0.png)
+![8000 QPS Latency](diagrams/03_http_constant_throughput/latency_8000_0.png)
 
-![Latency](diagrams/05_http_constant_throughput_header/global_latency_1000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
-![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_1000.png)
-![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_1000.png)
-![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_1000.png)
-![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_1000.png)
+#### Resources Consumption
+
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_1000.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_5000.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_8000.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_1000.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_5000.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_8000.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_1000.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_5000.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_8000.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_1000.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_5000.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_8000.png)
+
+### Experiment 4 (gRPC Constant Throughput Test)
+
+#### Latency
+
+![1000 QPS Latency](diagrams/04_grpc_constant_throughput/latency_1000_0.png)
+![5000 QPS Latency](diagrams/04_grpc_constant_throughput/latency_5000_0.png)
+![8000 QPS Latency](diagrams/04_grpc_constant_throughput/latency_8000_0.png)
+
+#### Resources Consumption
+
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_1000.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_5000.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_8000.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_1000.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_5000.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_8000.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_1000.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_5000.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_8000.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_1000.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_5000.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_8000.png)
 
 
-### Constant HTTP Throughput and HTTPRoute Header-based routing (10000 QPS)
+### Experiment 5 (HTTP Constant Throughput with Payload Test)
 
-![Latency](diagrams/05_http_constant_throughput_header/global_latency_10000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_10000.png) -->
-![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_10000.png)
-![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_10000.png)
-![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_10000.png)
-![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_10000.png)
+#### Latency
 
-### Constant HTTP Throughput and HTTPRoute Header-based routing (100000 QPS)
+![1000 QPS Latency](diagrams/05_http_payload/latency_1000_10000.png)
+![1000 QPS Latency](diagrams/05_http_payload/latency_1000_100000.png)
+![1000 QPS Latency](diagrams/05_http_payload/latency_1000_1000000.png)
 
-![Latency](diagrams/05_http_constant_throughput_header/global_latency_100000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_100000.png) -->
-![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_100000.png)
-![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_100000.png)
-![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_100000.png)
-![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_100000.png)
+#### Resources Consumption
 
-### Constant HTTP Throughput and HTTPRoute Header-based routing (1000000 QPS)
+![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_10000.png)
+![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_100000.png)
+![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000000.png)
+![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_10000.png)
+![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png)
+![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png)
+![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_10000.png)
+![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_100000.png)
+![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000000.png)
+![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_10000.png)
+![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_100000.png)
+![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000000.png)
 
-![Latency](diagrams/05_http_constant_throughput_header/global_latency_1000000.png)
-<!-- ![Latency error](diagrams/02_http_constant_throughput/latency_error_1000000.png) -->
-![Control Plane CPU usage](diagrams/05_http_constant_throughput_header/control_plane_cpu_1000000.png)
-![Control Plane Memory usage](diagrams/05_http_constant_throughput_header/control_plane_memory_1000000.png)
-![Data Plane CPU usage](diagrams/05_http_constant_throughput_header/data_plane_cpu_1000000.png)
-![Data Plane Memory usage](diagrams/05_http_constant_throughput_header/data_plane_memory_1000000.png)
+
+### Experiment 6 (HTTP Constant Throughput with HTTPRoute header-based routing Test)
+
+#### Latency
+
+![1000 QPS Latency](diagrams/06_http_constant_throughput_header/latency_1000_0.png)
+![1000 QPS Latency](diagrams/06_http_constant_throughput_header/latency_5000_0.png)
+![1000 QPS Latency](diagrams/06_http_constant_throughput_header/latency_8000_0.png)
+
+#### Resources Consumption
+
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_1000.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_5000.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_8000.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_1000.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_5000.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_8000.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_1000.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_5000.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_8000.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_1000.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_5000.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_8000.png)
 
 # Contributing
 
