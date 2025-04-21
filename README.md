@@ -33,14 +33,8 @@ Before running the scripts, ensure that you have:
 - **Run the Setup Script:** Execute the `setup.sh` script. This will provision all necessary resources.
 
 To keep the setup as clear as possible:
-- A node will be tainted so that only Fortio is deployed there.
+- A node will be tainted so that only Fortio is deployed there. You can optionally deploy the Istio Waypoint in the same node using the `ISTIO_WAYPOINT_PLACEMENT="same"`
 - Istio and Linkerd will be downloaded and installed on another node, based on the `ISTIO_VERSION` and `LINKERD_VERSION` environment variables.
-
-Once the infrastructure is set up, you can start the tests using the `experiments.sh` script. This script ensures a clean environment for each test run by:
-- Removing Istio labels
-- Removing Waypoint
-- Removing Linkerd annotations,
-- Restarting the Fortio workloads (so that no proxies are injected).
 
 Before each load test, it will start a background job that collects metrics via the Kubernetes API. These metrics are saved to a file corresponding to the specific test. Once the test is completed, the script will automatically stop the metrics collection process. To begin an experiment, set the `MESH` variable to your desired service mesh and run the script:
 
@@ -178,22 +172,22 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_10000.png)
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_100000.png)
-![1000 QPS Latency](diagrams/05_http_payload/latency_1000_1000000.png)
+<!-- ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_1000000.png) -->
 
 #### Resources Consumption
 
 ![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_10000.png)
 ![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_100000.png)
-![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000000.png)
+<!-- ![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000000.png) -->
 ![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_10000.png)
 ![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png)
-![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png)
+<!-- ![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png) -->
 ![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_10000.png)
 ![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_100000.png)
-![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000000.png)
+<!-- ![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000000.png) -->
 ![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_10000.png)
 ![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_100000.png)
-![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000000.png)
+<!-- ![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000000.png) -->
 
 
 ### Experiment 6 (HTTP Constant Throughput with HTTPRoute header-based routing Test)
