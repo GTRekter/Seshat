@@ -7,7 +7,7 @@
 # Version       : 1.0
 ###################################################################################################################
 set -e  
-set -u 
+# set -u 
 
 # ---------------------------------------------------------
 # Load utilities
@@ -15,10 +15,11 @@ set -u
 source "$(dirname "$0")/utilities.sh"
 
 # ---------------------------------------------------------
-# Variables
+# Configuration
 # ---------------------------------------------------------
 CLUSTER_DOMAIN="cluster.local"
 
+FORTIO_CLIENT_COUNT=30
 FORTIO_CLIENT_NS="service-mesh-benchmark"
 FORTIO_CLIENT_SVC="fortio-client"
 FORTIO_CLIENT_HOST="${FORTIO_CLIENT_SVC}.${FORTIO_CLIENT_NS}.svc.cluster.local"
@@ -40,13 +41,18 @@ METRICS_INITIAL_DELAY=30
 REPETITIONS=2
 RESULTS_DIR="./results"
 
-# MESH=(istio linkerd baseline)
-MESH=(baseline)
+MESH=(linkerd istio baseline)
 ISTIO_VERSION="1.25.1"
 ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
 
 CONFIG_LOG_LEVEL=DEBUG
+
+# ---------------------------------------------------------
+# Variables
+# ---------------------------------------------------------
+declare -a METRICS_PIDS=()
+declare -a LOAD_TESTS_PIDS=()
 
 # ---------------------------------------------------------
 # Functions
@@ -118,10 +124,13 @@ function export_resource_metrics {
 }
 
 function terminate_export_resource_metrics_process {
-    if [[ -n "${METRICS_PID:-}" ]]; then
-        echo "Cleaning up background metrics process $METRICS_PID..."
-        kill "$METRICS_PID" 2>/dev/null || true
-    fi
+    if (( ${#METRICS_PIDS[@]} )); then
+        echo "Cleaning up background metrics processes: ${METRICS_PIDS[*]}..."
+        for pid in "${METRICS_PIDS[@]}"; do
+            kill "$pid" 2>/dev/null || true
+        done
+        METRICS_PIDS=()  
+     fi
 }
 
 function fortio_load_test {
@@ -134,8 +143,12 @@ function fortio_load_test {
     local PAYLOAD_SIZE="0"
     local RESOLUTION="0.0001"
     local RUNNER="http"
+    local COLLECT_METRICS="false"
+    local POD_NAME=""
+    local REPLICAS="1"
+    local COLLECT_LATENCY="true"
     local -a HEADERS=()
-    while getopts "o:m:q:d:c:p:r:u:h:" opt; do
+    while getopts "o:m:q:d:c:p:r:u:k:n:l:a:h:" opt; do
         case $opt in
             o) OUTPUT_DIR="$OPTARG" ;;
             m) MESH="$OPTARG" ;;
@@ -145,6 +158,10 @@ function fortio_load_test {
             p) PAYLOAD_SIZE="$OPTARG" ;;
             r) RESOLUTION="$OPTARG" ;;
             u) RUNNER="$OPTARG" ;;
+            k) COLLECT_METRICS="$OPTARG" ;;
+            n) POD_NAME="$OPTARG" ;;
+            a) REPLICAS="$OPTARG" ;;
+            l) COLLECT_LATENCY="$OPTARG" ;;
             h) HEADERS+=( -H "$OPTARG" ) ;;
             *) echo "Invalid option: -$OPTARG" >&2; return 1 ;;
         esac
@@ -163,6 +180,10 @@ function fortio_load_test {
     log_message "DEBUG" "Payload Size: ${PAYLOAD_SIZE}"
     log_message "DEBUG" "Resolution: ${RESOLUTION}"
     log_message "DEBUG" "Runner: ${RUNNER}"
+    log_message "DEBUG" "Collect Metrics: ${COLLECT_METRICS}"
+    log_message "DEBUG" "Pod Name: ${POD_NAME}"
+    log_message "DEBUG" "Replicas: ${REPLICAS}"
+    log_message "DEBUG" "Collect Latency: ${COLLECT_LATENCY}"
     log_message "DEBUG" "Headers: ${HEADERS[@]:-none}"
     if [[ "$RUNNER" == "http" ]]; then
         TARGET="http://${FORTIO_SERVER_SVC}.${FORTIO_SERVER_NS}.svc.${CLUSTER_DOMAIN}:${FORTIO_SERVER_HTTP_PORT}"
@@ -170,13 +191,20 @@ function fortio_load_test {
         TARGET="${FORTIO_SERVER_SVC}.${FORTIO_SERVER_NS}.svc.${CLUSTER_DOMAIN}:${FORTIO_SERVER_GRPC_PORT}"
     fi
     log_message "DEBUG" "Target URL: ${TARGET}"
+    if [[ "$POD_NAME" != "" ]]; then
+        FORTIO_CLIENT=$POD_NAME
+    else 
+        FORTIO_CLIENT="deploy/fortio-client"
+    fi
+    log_message "DEBUG" "Fortio Client: ${FORTIO_CLIENT}"
     NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    METRICS_FILE="${OUTPUT_DIR}/metrics_${MESH}_${QUERY_PER_SECOND}_${PAYLOAD_SIZE}_${NOW}.csv"
+    METRICS_FILE="${OUTPUT_DIR}/metrics_${MESH}_${QUERY_PER_SECOND}_${PAYLOAD_SIZE}_${REPLICAS}_${NOW}.csv"
     LATENCY_FILE="${OUTPUT_DIR}/latencies_${MESH}_${QUERY_PER_SECOND}_${PAYLOAD_SIZE}_${NOW}.json"
-    if [[ "$MESH" != "baseline" ]]; then
+    if [[ "$MESH" != "baseline" ]] && [[ "$COLLECT_METRICS" == "true" ]]; then
         log_message "DEBUG" "Start collecting metrics..."
         export_resource_metrics -m "$MESH" -o "$METRICS_FILE" &
         METRICS_PID=$!
+        METRICS_PIDS+=( $METRICS_PID )
         log_message "DEBUG" "Background metrics PID: $METRICS_PID"
     fi
     ARGUMENTS=("-c" "$CONNECTIONS" "-qps" "$QUERY_PER_SECOND" "-t" "$DURATION" "-r" "$RESOLUTION"  "-payload-size" "$PAYLOAD_SIZE")
@@ -192,17 +220,29 @@ function fortio_load_test {
     if (( ${#HEADERS[@]} )); then
         ARGUMENTS+=( "${HEADERS[@]}" )
     fi
-    log_message "TECH" "kubectl exec -n \"$FORTIO_CLIENT_NS\" deploy/fortio-client -c fortio -- fortio load \"${ARGUMENTS[@]}\" -json - \"$TARGET\""
-    kubectl exec -n "$FORTIO_CLIENT_NS" deploy/fortio-client -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" > "$LATENCY_FILE"
+    log_message "TECH" "kubectl exec -n \"$FORTIO_CLIENT_NS\" $FORTIO_CLIENT -c fortio -- fortio load \"${ARGUMENTS[@]}\" -json - \"$TARGET\""
+    if [[ "$COLLECT_LATENCY" == "true" ]]; then
+        kubectl exec -n "$FORTIO_CLIENT_NS" $FORTIO_CLIENT -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" > "$LATENCY_FILE"
+    else
+        kubectl exec -n "$FORTIO_CLIENT_NS" $FORTIO_CLIENT -c fortio -- fortio load "${ARGUMENTS[@]}" -json - "$TARGET" &>/dev/null
+    fi
     if [ $? -ne 0 ]; then
         log_message "ERROR" "Error connecting to ${URL}"
-        if [[ "$MESH" != "baseline" ]]; then
+        if [[ "$MESH" != "baseline" ]] && [[ "$COLLECT_METRICS" == "true" ]]; then
             kill $METRICS_PID
+            for i in "${!METRICS_PIDS[@]}"; do
+                [[ "${METRICS_PIDS[i]}" == "$METRICS_PID" ]] && unset 'METRICS_PIDS[i]'
+            done
+            METRICS_PIDS=( "${METRICS_PIDS[@]}" )
         fi
         exit 1
     fi
-    if [[ "$MESH" != "baseline" ]]; then
+    if [[ "$MESH" != "baseline" ]] && [[ "$COLLECT_METRICS" == "true" ]]; then
         kill $METRICS_PID
+        for i in "${!METRICS_PIDS[@]}"; do
+            [[ "${METRICS_PIDS[i]}" == "$METRICS_PID" ]] && unset 'METRICS_PIDS[i]'
+        done
+        METRICS_PIDS=( "${METRICS_PIDS[@]}" )
     fi
 }
 
@@ -429,101 +469,142 @@ for MESH in "${MESH[@]}"; do
     # ---------------------------------------------------------
     # Run the experiments
     # ---------------------------------------------------------
-    # HTTP Max throughput experiment (experiment 1).
-    log_message "DEBUG" "Starting HTTP Max Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/01_http_max_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
-        log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-        sleep 20
-    done
+    # # HTTP Max throughput experiment (experiment 1).
+    # log_message "DEBUG" "Starting HTTP Max Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/01_http_max_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
+    #     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #     sleep 20
+    # done
 
-    # gRPC Max throughput experiment (experiment 2).
-    log_message "DEBUG" "Starting GRPC Max Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/02_grpc_max_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
-        log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-        sleep 20
-    done
+    # # gRPC Max throughput experiment (experiment 2).
+    # log_message "DEBUG" "Starting GRPC Max Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/02_grpc_max_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
+    #     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #     sleep 20
+    # done
 
-    # HTTP Constant throughput experiment (experiment 3).
-    log_message "DEBUG" "Starting HTTP Constant Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/03_http_constant_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # HTTP Constant throughput experiment (experiment 3).
+    # log_message "DEBUG" "Starting HTTP Constant Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/03_http_constant_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # gRPC Constant throughput experiment (experiment 4).
-    log_message "DEBUG" "Starting gRPC Constant Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/04_grpc_constant_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -u "grpc"
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # gRPC Constant throughput experiment (experiment 4).
+    # log_message "DEBUG" "Starting gRPC Constant Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/04_grpc_constant_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -u "grpc"
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # HTTP Constant throughput with Payload experiment (experiment 5).
-    log_message "DEBUG" "Starting HTTP Payload test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        QUERY_PER_SECOND=1000
-        for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # HTTP Constant throughput with Payload experiment (experiment 5).
+    # log_message "DEBUG" "Starting HTTP Payload test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     QUERY_PER_SECOND=1000
+    #     for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
+    # # HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
+    # if [ "$MESH" != "baseline" ]; then
+    #     log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header-based routing test"
+    #     for REPETITION in $(seq 1 $REPETITIONS); do
+    #         log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #         OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/06_http_constant_throughput_header"
+    #         if [ ! -d "$OUTPUT_DIR" ]; then
+    #             mkdir -p "$OUTPUT_DIR"
+    #         fi
+    #         kubectl apply -f ./manifests/httproute.yaml
+    #         for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #             log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #             fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"
+    #             log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #             sleep 20
+    #         done
+    #         kubectl delete -f ./manifests/httproute.yaml
+    #     done
+    # else
+    #     log_message "DEBUG" "Skipping HTTPRoute header-based routing test for baseline mesh"
+    # fi
+
+    # Resource consumtion with multiple clients, constant throughput and no payload experiment (experiment 7). 
     if [ "$MESH" != "baseline" ]; then
-        log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header-based routing test"
         for REPETITION in $(seq 1 $REPETITIONS); do
             log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-            OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/06_http_constant_throughput_header"
+            OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/07_resource_consumption"
             if [ ! -d "$OUTPUT_DIR" ]; then
                 mkdir -p "$OUTPUT_DIR"
             fi
-            kubectl apply -f ./manifests/httproute.yaml
-            for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-                log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-                fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"
-                log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-                sleep 20
+            log_message "DEBUG" "Starting Resource Consumption test"
+            log_message "DEBUG" "Scaling fortio-client deployment to $FORTIO_CLIENT_COUNT replicas"
+            log_message "TECH" "kubectl scale deploy fortio-client -n $FORTIO_CLIENT_NS --replicas=$FORTIO_CLIENT_COUNT"
+            kubectl scale deploy fortio-client -n "$FORTIO_CLIENT_NS" --replicas="$FORTIO_CLIENT_COUNT"
+            log_message "DEBUG" "Waiting for fortio-client to be ready"
+            log_message "TECH" "kubectl wait --for=condition=Available deployment/fortio-client -n $FORTIO_CLIENT_NS --timeout=300s"
+            kubectl wait --for=condition=Available deployment/fortio-client --namespace service-mesh-benchmark --timeout=300s
+            
+            log_message "DEBUG" "Getting list of fortio-client pods"
+            PODS=( $(kubectl get pods -n "$FORTIO_CLIENT_NS" -l app=fortio-client -o jsonpath='{.items[*].metadata.name}') )
+            log_message "DEBUG" "PODS: ${PODS[@]}"
+            QUERY_PER_SECOND=1000
+            log_message "DEBUG" "Starting fortio_load_test in parallel for each pod"
+            for POD in "${PODS[@]}"; do
+                LAST_POD="false"
+                if [[ "$POD" == "${PODS[@]: -1}" ]]; then
+                    LAST_POD="true"
+                fi
+                if [[ "$LAST_POD" == "true" ]]; then
+                    log_message "DEBUG" "Last pod: $POD"
+                    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "false" -c "false" -r "$RESOLUTION" -k "true" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT
+                else
+                    log_message "DEBUG" "Pod: $POD"
+                    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r "$RESOLUTION" -k "false" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT &
+                fi
             done
-            kubectl delete -f ./manifests/httproute.yaml
+            log_message "DEBUG" "Sleeping 20s to let metrics stabilize"
+            sleep 20
         done
     else
-        log_message "DEBUG" "Skipping HTTPRoute header-based routing test for baseline mesh"
+        log_message "DEBUG" "Skipping Resource Consumption with multiple clients test for baseline mesh"
     fi
 done
 log_message "SUCCESS" "Experiment completed successfully!"

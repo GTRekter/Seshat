@@ -213,6 +213,13 @@ The following images are automatically generated and updated by the Jupyter Note
 ![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_5000.png)
 ![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_8000.png)
 
+### Experiment 7 (HTTP Constant Throughput with 30 Fortio client replicas Test)
+
+![Control Plane CPU usage](diagrams/07_resource_consumption/metrics_control_plane_cpu_1000_0.png)
+![Control Plane Memory usage](diagrams/07_resource_consumption/metrics_control_plane_memory_1000_0.png)
+![Data Plane CPU usage](diagrams/07_resource_consumption/metrics_data_plane_cpu_1000_0.png)
+![Data Plane Memory usage](diagrams/07_resource_consumption/metrics_data_plane_memory_1000_0.png)
+
 # Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your improvements. For major changes, please open an issue first to discuss what you would like to change.
