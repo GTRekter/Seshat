@@ -176,17 +176,17 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_10000.png)
-![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_100000.png)
+![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000_10000.png)
+![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000_100000.png)
 <!-- ![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000000.png) -->
-![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_10000.png)
-![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png)
+![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_1000_10000.png)
+![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_1000_100000.png)
 <!-- ![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png) -->
-![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_10000.png)
-![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_100000.png)
+![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000_10000.png)
+![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000_100000.png)
 <!-- ![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000000.png) -->
-![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_10000.png)
-![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_100000.png)
+![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000_10000.png)
+![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000_100000.png)
 <!-- ![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000000.png) -->
 
 
