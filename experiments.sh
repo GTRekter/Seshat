@@ -31,7 +31,7 @@ FORTIO_SERVER_SVC="fortio-server"
 FORTIO_SERVER_HTTP_PORT="8080"
 FORTIO_SERVER_GRPC_PORT="8079"
 
-DURATION="180s"
+DURATION="120s"
 INTERVAL="1s"
 CONNECTIONS=50
 RESOLUTION="0.0001"
@@ -41,7 +41,7 @@ METRICS_INITIAL_DELAY=30
 REPETITIONS=2
 RESULTS_DIR="./results"
 
-MESH=(linkerd istio baseline)
+MESH=(linkerd)
 ISTIO_VERSION="1.25.1"
 ISTIO_WAYPOINT_PLACEMENT="same" # same, different
 LINKERD_VERSION="edge-25.4.1"
@@ -143,7 +143,7 @@ function fortio_load_test {
     local PAYLOAD_SIZE="0"
     local RESOLUTION="0.0001"
     local RUNNER="http"
-    local COLLECT_METRICS="false"
+    local COLLECT_METRICS="true"
     local POD_NAME=""
     local REPLICAS="1"
     local COLLECT_LATENCY="true"
@@ -528,21 +528,21 @@ for MESH in "${MESH[@]}"; do
     # done
 
     # # HTTP Constant throughput with Payload experiment (experiment 5).
-    # log_message "DEBUG" "Starting HTTP Payload test"
-    # for REPETITION in $(seq 1 $REPETITIONS); do
-    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
-    #     if [ ! -d "$OUTPUT_DIR" ]; then
-    #         mkdir -p "$OUTPUT_DIR"
-    #     fi
-    #     QUERY_PER_SECOND=1000
-    #     for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
-    #         log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
-    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
-    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-    #         sleep 20
-    #     done
-    # done
+    log_message "DEBUG" "Starting HTTP Payload test"
+    for REPETITION in $(seq 1 $REPETITIONS); do
+        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
+        if [ ! -d "$OUTPUT_DIR" ]; then
+            mkdir -p "$OUTPUT_DIR"
+        fi
+        QUERY_PER_SECOND=1000
+        for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
+            log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
+            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
+            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+            sleep 20
+        done
+    done
 
     # # HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
     # if [ "$MESH" != "baseline" ]; then
@@ -567,44 +567,44 @@ for MESH in "${MESH[@]}"; do
     # fi
 
     # Resource consumtion with multiple clients, constant throughput and no payload experiment (experiment 7). 
-    if [ "$MESH" != "baseline" ]; then
-        for REPETITION in $(seq 1 $REPETITIONS); do
-            log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-            OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/07_resource_consumption"
-            if [ ! -d "$OUTPUT_DIR" ]; then
-                mkdir -p "$OUTPUT_DIR"
-            fi
-            log_message "DEBUG" "Starting Resource Consumption test"
-            log_message "DEBUG" "Scaling fortio-client deployment to $FORTIO_CLIENT_COUNT replicas"
-            log_message "TECH" "kubectl scale deploy fortio-client -n $FORTIO_CLIENT_NS --replicas=$FORTIO_CLIENT_COUNT"
-            kubectl scale deploy fortio-client -n "$FORTIO_CLIENT_NS" --replicas="$FORTIO_CLIENT_COUNT"
-            log_message "DEBUG" "Waiting for fortio-client to be ready"
-            log_message "TECH" "kubectl wait --for=condition=Available deployment/fortio-client -n $FORTIO_CLIENT_NS --timeout=300s"
-            kubectl wait --for=condition=Available deployment/fortio-client --namespace service-mesh-benchmark --timeout=300s
+    # if [ "$MESH" != "baseline" ]; then
+    #     for REPETITION in $(seq 1 $REPETITIONS); do
+    #         log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #         OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/07_resource_consumption"
+    #         if [ ! -d "$OUTPUT_DIR" ]; then
+    #             mkdir -p "$OUTPUT_DIR"
+    #         fi
+    #         log_message "DEBUG" "Starting Resource Consumption test"
+    #         log_message "DEBUG" "Scaling fortio-client deployment to $FORTIO_CLIENT_COUNT replicas"
+    #         log_message "TECH" "kubectl scale deploy fortio-client -n $FORTIO_CLIENT_NS --replicas=$FORTIO_CLIENT_COUNT"
+    #         kubectl scale deploy fortio-client -n "$FORTIO_CLIENT_NS" --replicas="$FORTIO_CLIENT_COUNT"
+    #         log_message "DEBUG" "Waiting for fortio-client to be ready"
+    #         log_message "TECH" "kubectl wait --for=condition=Available deployment/fortio-client -n $FORTIO_CLIENT_NS --timeout=300s"
+    #         kubectl wait --for=condition=Available deployment/fortio-client --namespace service-mesh-benchmark --timeout=300s
             
-            log_message "DEBUG" "Getting list of fortio-client pods"
-            PODS=( $(kubectl get pods -n "$FORTIO_CLIENT_NS" -l app=fortio-client -o jsonpath='{.items[*].metadata.name}') )
-            log_message "DEBUG" "PODS: ${PODS[@]}"
-            QUERY_PER_SECOND=1000
-            log_message "DEBUG" "Starting fortio_load_test in parallel for each pod"
-            for POD in "${PODS[@]}"; do
-                LAST_POD="false"
-                if [[ "$POD" == "${PODS[@]: -1}" ]]; then
-                    LAST_POD="true"
-                fi
-                if [[ "$LAST_POD" == "true" ]]; then
-                    log_message "DEBUG" "Last pod: $POD"
-                    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "false" -c "false" -r "$RESOLUTION" -k "true" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT
-                else
-                    log_message "DEBUG" "Pod: $POD"
-                    fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r "$RESOLUTION" -k "false" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT &
-                fi
-            done
-            log_message "DEBUG" "Sleeping 20s to let metrics stabilize"
-            sleep 20
-        done
-    else
-        log_message "DEBUG" "Skipping Resource Consumption with multiple clients test for baseline mesh"
-    fi
+    #         log_message "DEBUG" "Getting list of fortio-client pods"
+    #         PODS=( $(kubectl get pods -n "$FORTIO_CLIENT_NS" -l app=fortio-client -o jsonpath='{.items[*].metadata.name}') )
+    #         log_message "DEBUG" "PODS: ${PODS[@]}"
+    #         QUERY_PER_SECOND=1000
+    #         log_message "DEBUG" "Starting fortio_load_test in parallel for each pod"
+    #         for POD in "${PODS[@]}"; do
+    #             LAST_POD="false"
+    #             if [[ "$POD" == "${PODS[@]: -1}" ]]; then
+    #                 LAST_POD="true"
+    #             fi
+    #             if [[ "$LAST_POD" == "true" ]]; then
+    #                 log_message "DEBUG" "Last pod: $POD"
+    #                 fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "false" -c "false" -r "$RESOLUTION" -k "true" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT
+    #             else
+    #                 log_message "DEBUG" "Pod: $POD"
+    #                 fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r "$RESOLUTION" -k "false" -n "$POD" -l "false" -a $FORTIO_CLIENT_COUNT &
+    #             fi
+    #         done
+    #         log_message "DEBUG" "Sleeping 20s to let metrics stabilize"
+    #         sleep 20
+    #     done
+    # else
+    #     log_message "DEBUG" "Skipping Resource Consumption with multiple clients test for baseline mesh"
+    # fi
 done
 log_message "SUCCESS" "Experiment completed successfully!"

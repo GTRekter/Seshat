@@ -9,6 +9,8 @@ kind: Service
 metadata:
   name: fortio-server
   namespace: service-mesh-benchmark
+  annotations:
+    config.linkerd.io/opaque-ports: "8080,8079"
 spec:
   ports:
     - port: 8080
@@ -36,6 +38,8 @@ spec:
     metadata:
       labels:
         app: fortio-server
+      annotations:
+        config.linkerd.io/opaque-ports: "8080,8079"
     spec:
       nodeSelector:
         dedicated: fortio

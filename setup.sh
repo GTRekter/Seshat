@@ -19,8 +19,8 @@ source "$(dirname "$0")/utilities.sh"
 # ---------------------------------------------------------
 # Variables
 # ---------------------------------------------------------
-# AZURE_SUBSCRIPTION_NAME="Microsoft VSES"
-AZURE_SUBSCRIPTION_NAME="Visual Studio Enterprise Subscription"
+AZURE_SUBSCRIPTION_NAME="Microsoft VSES"
+# AZURE_SUBSCRIPTION_NAME="Visual Studio Enterprise Subscription"
 RESOURCE_GROUP_NAME=rg-training-krc
 REGION="koreacentral"
 AKS_INSTANCE=001
