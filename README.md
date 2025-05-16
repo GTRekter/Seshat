@@ -97,10 +97,24 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/01_http_max_throughput/metrics_control_plane_cpu_0.png)
-![Control Plane Memory usage](diagrams/01_http_max_throughput/metrics_control_plane_memory_0.png)
-![Data Plane CPU usage](diagrams/01_http_max_throughput/metrics_data_plane_cpu_0.png)
-![Data Plane Memory usage](diagrams/01_http_max_throughput/metrics_data_plane_memory_0.png)
+![Control Plane CPU usage](diagrams/01_http_max_throughput/control_plane_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/01_http_max_throughput/control_plane_memory_0_0_1.png)
+![Data Plane CPU usage](diagrams/01_http_max_throughput/data_plane_cpu_0_0_1.png)
+![Data Plane Memory usage](diagrams/01_http_max_throughput/data_plane_memory_0_0_1.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/01_http_max_throughput/control_plane_timeline_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/01_http_max_throughput/control_plane_timeline_memory_0_0_1.png)
+![Data Plane CPU timeline usage](diagrams/01_http_max_throughput/data_plane_timeline_cpu_0_0_1.png)
+![Data Plane Memory timeline usage](diagrams/01_http_max_throughput/data_plane_timeline_memory_0_0_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/01_http_max_throughput/control_plane_timeline_cumulative_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/01_http_max_throughput/control_plane_timeline_cumulative_memory_0_0_1.png)
+![Data Plane CPU timeline usage](diagrams/01_http_max_throughput/data_plane_timeline_cumulative_cpu_0_0_1.png)
+![Data Plane Memory timeline usage](diagrams/01_http_max_throughput/data_plane_timeline_cumulative_memory_0_0_1.png)
 
 ### Experiment 2 (gRPC Max Throughput Test)
 
@@ -114,10 +128,24 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/02_grpc_max_throughput/metrics_control_plane_cpu_0.png)
-![Control Plane Memory usage](diagrams/02_grpc_max_throughput/metrics_control_plane_memory_0.png)
-![Data Plane CPU usage](diagrams/02_grpc_max_throughput/metrics_data_plane_cpu_0.png)
-![Data Plane Memory usage](diagrams/02_grpc_max_throughput/metrics_data_plane_memory_0.png)
+![Control Plane CPU usage](diagrams/02_grpc_max_throughput/control_plane_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/02_grpc_max_throughput/control_plane_memory_0_0_1.png)
+![Data Plane CPU usage](diagrams/02_grpc_max_throughput/data_plane_cpu_0_0_1.png)
+![Data Plane Memory usage](diagrams/02_grpc_max_throughput/data_plane_memory_0_0_1.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/02_grpc_max_throughput/control_plane_timeline_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/02_grpc_max_throughput/control_plane_timeline_memory_0_0_1.png)
+![Data Plane CPU timeline usage](diagrams/02_grpc_max_throughput/data_plane_timeline_cpu_0_0_1.png)
+![Data Plane Memory timeline usage](diagrams/02_grpc_max_throughput/data_plane_timeline_memory_0_0_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/02_grpc_max_throughput/control_plane_timeline_cumulative_cpu_0_0_1.png)
+![Control Plane Memory usage](diagrams/02_grpc_max_throughput/control_plane_timeline_cumulative_memory_0_0_1.png)
+![Data Plane CPU timeline usage](diagrams/02_grpc_max_throughput/data_plane_timeline_cumulative_cpu_0_0_1.png)
+![Data Plane Memory timeline usage](diagrams/02_grpc_max_throughput/data_plane_timeline_cumulative_memory_0_0_1.png)
 
 ### Experiment 3 (HTTP Constant Throughput Test)
 
@@ -129,18 +157,36 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_1000.png)
-![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_5000.png)
-![Control Plane CPU usage](diagrams/03_http_constant_throughput/metrics_control_plane_cpu_8000.png)
-![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_1000.png)
-![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_5000.png)
-![Control Plane Memory usage](diagrams/03_http_constant_throughput/metrics_control_plane_memory_8000.png)
-![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_1000.png)
-![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_5000.png)
-![Data Plane CPU usage](diagrams/03_http_constant_throughput/metrics_data_plane_cpu_8000.png)
-![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_1000.png)
-![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_5000.png)
-![Data Plane Memory usage](diagrams/03_http_constant_throughput/metrics_data_plane_memory_8000.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_cpu_8000_0_1.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/control_plane_memory_1000_0_1.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/control_plane_memory_5000_0_1.png)
+![Control Plane Memory usage](diagrams/03_http_constant_throughput/control_plane_memory_8000_0_1.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/data_plane_cpu_1000_0_1.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/data_plane_cpu_5000_0_1.png)
+![Data Plane CPU usage](diagrams/03_http_constant_throughput/data_plane_cpu_8000_0_1.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/data_plane_memory_1000_0_1.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/data_plane_memory_5000_0_1.png)
+![Data Plane Memory usage](diagrams/03_http_constant_throughput/data_plane_memory_8000_0_1.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_memory_8000_0_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/03_http_constant_throughput/control_plane_timeline_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_cumulative_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_cumulative_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/03_http_constant_throughput/control_plane_timeline_cumulative_memory_8000_0_1.png)
 
 ### Experiment 4 (gRPC Constant Throughput Test)
 
@@ -152,42 +198,55 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_1000.png)
-![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_5000.png)
-![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_cpu_8000.png)
-![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_1000.png)
-![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_5000.png)
-![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_control_plane_memory_8000.png)
-![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_1000.png)
-![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_5000.png)
-![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_cpu_8000.png)
-![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_1000.png)
-![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_5000.png)
-![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/metrics_data_plane_memory_8000.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_cpu_8000_0_1.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/control_plane_memory_1000_0_1.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/control_plane_memory_5000_0_1.png)
+![Control Plane Memory usage](diagrams/04_grpc_constant_throughput/control_plane_memory_8000_0_1.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/data_plane_cpu_1000_0_1.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/data_plane_cpu_5000_0_1.png)
+![Data Plane CPU usage](diagrams/04_grpc_constant_throughput/data_plane_cpu_8000_0_1.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/data_plane_memory_1000_0_1.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/data_plane_memory_5000_0_1.png)
+![Data Plane Memory usage](diagrams/04_grpc_constant_throughput/data_plane_memory_8000_0_1.png)
 
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_memory_8000_0_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cumulative_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cumulative_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/04_grpc_constant_throughput/control_plane_timeline_cumulative_memory_8000_0_1.png)
 
 ### Experiment 5 (HTTP Constant Throughput with Payload Test)
 
-#### Latency
+**Note:** To Re-run
+<!-- #### Latency
 
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_10000.png)
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_100000.png)
-<!-- ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_1000000.png) -->
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000_10000.png)
-![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000_100000.png)
-<!-- ![Control Plane CPU usage](diagrams/05_http_payload/metrics_control_plane_cpu_1000_1000000.png) -->
-![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_1000_10000.png)
-![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_1000_100000.png)
-<!-- ![Control Plane Memory usage](diagrams/05_http_payload/metrics_control_plane_memory_1000_100000.png) -->
-![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000_10000.png)
-![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000_100000.png)
-<!-- ![Data Plane CPU usage](diagrams/05_http_payload/metrics_data_plane_cpu_1000_1000000.png) -->
-![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000_10000.png)
-![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000_100000.png)
-<!-- ![Data Plane Memory usage](diagrams/05_http_payload/metrics_data_plane_memory_1000_1000000.png) -->
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_cpu_1000_10000_1.png)
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_cpu_1000_100000_1.png)
+![Control Plane Memory usage](diagrams/05_http_payload/control_plane_memory_1000_10000_1.png)
+![Control Plane Memory usage](diagrams/05_http_payload/control_plane_memory_1000_100000_1.png)
+![Data Plane CPU usage](diagrams/05_http_payload/data_plane_cpu_1000_10000_1.png)
+![Data Plane CPU usage](diagrams/05_http_payload/data_plane_cpu_1000_100000_1.png)
+![Data Plane Memory usage](diagrams/05_http_payload/data_plane_memory_1000_10000_1.png)
+![Data Plane Memory usage](diagrams/05_http_payload/data_plane_memory_1000_100000_1.png) -->
 
 
 ### Experiment 6 (HTTP Constant Throughput with HTTPRoute header-based routing Test)
@@ -200,25 +259,53 @@ The following images are automatically generated and updated by the Jupyter Note
 
 #### Resources Consumption
 
-![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_1000.png)
-![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_5000.png)
-![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_cpu_8000.png)
-![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_1000.png)
-![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_5000.png)
-![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_control_plane_memory_8000.png)
-![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_1000.png)
-![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_5000.png)
-![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_cpu_8000.png)
-![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_1000.png)
-![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_5000.png)
-![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/metrics_data_plane_memory_8000.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_cpu_8000_0_1.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/control_plane_memory_1000_0_1.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/control_plane_memory_5000_0_1.png)
+![Control Plane Memory usage](diagrams/06_http_constant_throughput_header/control_plane_memory_8000_0_1.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/data_plane_cpu_1000_0_1.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/data_plane_cpu_5000_0_1.png)
+![Data Plane CPU usage](diagrams/06_http_constant_throughput_header/data_plane_cpu_8000_0_1.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/data_plane_memory_1000_0_1.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/data_plane_memory_5000_0_1.png)
+![Data Plane Memory usage](diagrams/06_http_constant_throughput_header/data_plane_memory_8000_0_1.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_memory_8000_0_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_cpu_1000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_cpu_5000_0_1.png)
+![Control Plane CPU usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_cpu_8000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_memory_1000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_memory_5000_0_1.png)
+![Data Plane CPU timeline usage](diagrams/06_http_constant_throughput_header/control_plane_timeline_comulative_memory_8000_0_1.png)
 
 ### Experiment 7 (HTTP Constant Throughput with 30 Fortio client replicas Test)
 
-![Control Plane CPU usage](diagrams/07_resource_consumption/metrics_control_plane_cpu_1000_0.png)
-![Control Plane Memory usage](diagrams/07_resource_consumption/metrics_control_plane_memory_1000_0.png)
-![Data Plane CPU usage](diagrams/07_resource_consumption/metrics_data_plane_cpu_1000_0.png)
-![Data Plane Memory usage](diagrams/07_resource_consumption/metrics_data_plane_memory_1000_0.png)
+![Control Plane CPU usage](diagrams/07_resource_consumption/control_plane_cpu_1000_0_30.png)
+![Control Plane Memory usage](diagrams/07_resource_consumption/control_plane_memory_1000_0_30.png)
+![Data Plane CPU usage](diagrams/07_resource_consumption/data_plane_cpu_1000_0_30.png)
+![Data Plane Memory usage](diagrams/07_resource_consumption/data_plane_memory_1000_0_30.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/07_resource_consumption/control_plane_timeline_cpu_1000_0_30.png)
+![Data Plane CPU timeline usage](diagrams/07_resource_consumption/control_plane_timeline_memory_1000_0_30.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/07_resource_consumption/control_plane_timeline_comulative_cpu_1000_0_30.png)
+![Data Plane CPU timeline usage](diagrams/07_resource_consumption/control_plane_timeline_comulative_memory_1000_0_30.png)
 
 # Contributing
 
