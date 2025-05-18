@@ -79,7 +79,7 @@ The environment is:
 
 Fortio configuration:
 - 50 connections (maximum number of threads)
-- 3-minute duration
+- 2-minute duration
 - 1-second interval metrics
 
 ## Latests Results 
@@ -231,8 +231,7 @@ The following images are automatically generated and updated by the Jupyter Note
 
 ### Experiment 5 (HTTP Constant Throughput with Payload Test)
 
-**Note:** To Re-run
-<!-- #### Latency
+#### Latency
 
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_10000.png)
 ![1000 QPS Latency](diagrams/05_http_payload/latency_1000_100000.png)
@@ -246,7 +245,21 @@ The following images are automatically generated and updated by the Jupyter Note
 ![Data Plane CPU usage](diagrams/05_http_payload/data_plane_cpu_1000_10000_1.png)
 ![Data Plane CPU usage](diagrams/05_http_payload/data_plane_cpu_1000_100000_1.png)
 ![Data Plane Memory usage](diagrams/05_http_payload/data_plane_memory_1000_10000_1.png)
-![Data Plane Memory usage](diagrams/05_http_payload/data_plane_memory_1000_100000_1.png) -->
+![Data Plane Memory usage](diagrams/05_http_payload/data_plane_memory_1000_100000_1.png)
+
+# Resources Timeline
+
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_timeline_cpu_1000_10000_1.png)
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_timeline_cpu_1000_100000_1.png)
+![Data Plane CPU timeline usage](diagrams/05_http_payload/control_plane_timeline_memory_1000_10000_1.png)
+![Data Plane CPU timeline usage](diagrams/05_http_payload/control_plane_timeline_memory_1000_100000_1.png)
+
+# Resources Cumulative Timeline
+
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_timeline_cpu_1000_10000_1.png)
+![Control Plane CPU usage](diagrams/05_http_payload/control_plane_timeline_cpu_1000_100000_1.png)
+![Data Plane CPU timeline usage](diagrams/05_http_payload/control_plane_timeline_cumulative_memory_1000_10000_1.png)
+![Data Plane CPU timeline usage](diagrams/05_http_payload/control_plane_timeline_cumulative_memory_1000_100000_1.png)
 
 
 ### Experiment 6 (HTTP Constant Throughput with HTTPRoute header-based routing Test)

@@ -1,0 +1,106 @@
+{
+  "RunType": "GRPC Health for ''",
+  "Labels": "fortio-server.service-mesh-benchmark.svc.cluster.local:8079 , fortio-client-5f9f8fb9cc-f7gts",
+  "StartTime": "2025-05-18T12:16:21.501582904Z",
+  "RequestedQPS": "1",
+  "RequestedDuration": "2m0s",
+  "ActualQPS": 0.6711346758163094,
+  "ActualDuration": 149001390635,
+  "NumThreads": 50,
+  "Version": "1.69.4",
+  "DurationHistogram": {
+    "Count": 100,
+    "Min": 0.000622121,
+    "Max": 0.002554442,
+    "Sum": 0.132962784,
+    "Avg": 0.00132962784,
+    "StdDev": 0.0001683897813087682,
+    "Data": [
+      {
+        "Start": 0.000622121,
+        "End": 0.0007,
+        "Percent": 1,
+        "Count": 1
+      },
+      {
+        "Start": 0.0011,
+        "End": 0.0012000000000000001,
+        "Percent": 2,
+        "Count": 1
+      },
+      {
+        "Start": 0.0012000000000000001,
+        "End": 0.0014,
+        "Percent": 89,
+        "Count": 87
+      },
+      {
+        "Start": 0.0014,
+        "End": 0.0016,
+        "Percent": 96,
+        "Count": 7
+      },
+      {
+        "Start": 0.0016,
+        "End": 0.0018000000000000002,
+        "Percent": 99,
+        "Count": 3
+      },
+      {
+        "Start": 0.0025,
+        "End": 0.002554442,
+        "Percent": 100,
+        "Count": 1
+      }
+    ],
+    "Percentiles": [
+      {
+        "Percentile": 50,
+        "Value": 0.001310344827586207
+      },
+      {
+        "Percentile": 75,
+        "Value": 0.001367816091954023
+      },
+      {
+        "Percentile": 90,
+        "Value": 0.0014285714285714286
+      },
+      {
+        "Percentile": 99,
+        "Value": 0.0018000000000000002
+      },
+      {
+        "Percentile": 99.9,
+        "Value": 0.0025489978000000006
+      }
+    ]
+  },
+  "ErrorsDurationHistogram": {
+    "Count": 0,
+    "Min": 0,
+    "Max": 0,
+    "Sum": 0,
+    "Avg": 0,
+    "StdDev": 0,
+    "Data": null
+  },
+  "Exactly": 0,
+  "Jitter": false,
+  "Uniform": true,
+  "NoCatchUp": true,
+  "RunID": 0,
+  "AccessLoggerInfo": "",
+  "ID": "2025-05-18-121621_fortio_server_service_mesh_benchmark_svc_cluster_local_8079_fortio_client_5f9f",
+  "RetCodes": {
+    "SERVING": 100
+  },
+  "Destination": "fortio-server.service-mesh-benchmark.svc.cluster.local:8079",
+  "Streams": 1,
+  "Ping": false,
+  "Metadata": {
+    "user-agent": [
+      "fortio.org/fortio-1.69.4"
+    ]
+  }
+}

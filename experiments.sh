@@ -35,8 +35,8 @@ DURATION="120s"
 INTERVAL="1s"
 CONNECTIONS=50
 RESOLUTION="0.0001"
-QUERY_PER_SECOND_LIST=(1 1000 5000 8000)
-PAYLOAD_SIZE_LIST=(10000 100000)
+QUERY_PER_SECOND_LIST=(1 1000 3000 5000)
+PAYLOAD_SIZE_LIST=(1000 10000)
 METRICS_INITIAL_DELAY=30
 REPETITIONS=2
 RESULTS_DIR="./results"
@@ -470,101 +470,101 @@ for MESH in "${MESH[@]}"; do
     # Run the experiments
     # ---------------------------------------------------------
     # HTTP Max throughput experiment (experiment 1).
-    log_message "DEBUG" "Starting HTTP Max Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/01_http_max_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
-        log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-        sleep 20
-    done
+    # log_message "DEBUG" "Starting HTTP Max Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/01_http_max_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION
+    #     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #     sleep 20
+    # done
 
-    # gRPC Max throughput experiment (experiment 2).
-    log_message "DEBUG" "Starting GRPC Max Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/02_grpc_max_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
-        log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-        sleep 20
-    done
+    # # gRPC Max throughput experiment (experiment 2).
+    # log_message "DEBUG" "Starting GRPC Max Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/02_grpc_max_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     fortio_load_test -o $OUTPUT_DIR -m $MESH -q "0" -d "false" -c "false" -r $RESOLUTION -u "grpc"
+    #     log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #     sleep 20
+    # done
 
-    # HTTP Constant throughput experiment (experiment 3).
-    log_message "DEBUG" "Starting HTTP Constant Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/03_http_constant_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # HTTP Constant throughput experiment (experiment 3).
+    # log_message "DEBUG" "Starting HTTP Constant Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/03_http_constant_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # gRPC Constant throughput experiment (experiment 4).
-    log_message "DEBUG" "Starting gRPC Constant Throughput test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/04_grpc_constant_throughput"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -u "grpc"
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # gRPC Constant throughput experiment (experiment 4).
+    # log_message "DEBUG" "Starting gRPC Constant Throughput test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/04_grpc_constant_throughput"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -u "grpc"
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # # HTTP Constant throughput with Payload experiment (experiment 5).
-    log_message "DEBUG" "Starting HTTP Payload test"
-    for REPETITION in $(seq 1 $REPETITIONS); do
-        log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-        OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
-        if [ ! -d "$OUTPUT_DIR" ]; then
-            mkdir -p "$OUTPUT_DIR"
-        fi
-        QUERY_PER_SECOND=1000
-        for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
-            log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
-            fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
-            log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-            sleep 20
-        done
-    done
+    # # # HTTP Constant throughput with Payload experiment (experiment 5).
+    # log_message "DEBUG" "Starting HTTP Payload test"
+    # for REPETITION in $(seq 1 $REPETITIONS); do
+    #     log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #     OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/05_http_payload"
+    #     if [ ! -d "$OUTPUT_DIR" ]; then
+    #         mkdir -p "$OUTPUT_DIR"
+    #     fi
+    #     QUERY_PER_SECOND=1000
+    #     for PAYLOAD_SIZE in "${PAYLOAD_SIZE_LIST[@]}"; do
+    #         log_message "INFO" "Running experiment with ${PAYLOAD_SIZE} bytes payload"
+    #         fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -p $PAYLOAD_SIZE
+    #         log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #         sleep 20
+    #     done
+    # done
 
-    # HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
-    if [ "$MESH" != "baseline" ]; then
-        log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header-based routing test"
-        for REPETITION in $(seq 1 $REPETITIONS); do
-            log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
-            OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/06_http_constant_throughput_header"
-            if [ ! -d "$OUTPUT_DIR" ]; then
-                mkdir -p "$OUTPUT_DIR"
-            fi
-            kubectl apply -f ./manifests/httproute.yaml
-            for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
-                log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
-                fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"
-                log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
-                sleep 20
-            done
-            kubectl delete -f ./manifests/httproute.yaml
-        done
-    else
-        log_message "DEBUG" "Skipping HTTPRoute header-based routing test for baseline mesh"
-    fi
+    # # HTTP Constant throughput with HTTPRoute header-based routing experiment (experiment 6).
+    # if [ "$MESH" != "baseline" ]; then
+    #     log_message "DEBUG" "Starting HTTP Constant Throughput with HTTPRoute header-based routing test"
+    #     for REPETITION in $(seq 1 $REPETITIONS); do
+    #         log_message "INFO" "Running experiment $REPETITION of $REPETITIONS"
+    #         OUTPUT_DIR="${RESULTS_DIR}/$REPETITION/06_http_constant_throughput_header"
+    #         if [ ! -d "$OUTPUT_DIR" ]; then
+    #             mkdir -p "$OUTPUT_DIR"
+    #         fi
+    #         kubectl apply -f ./manifests/httproute.yaml
+    #         for QUERY_PER_SECOND in "${QUERY_PER_SECOND_LIST[@]}"; do
+    #             log_message "INFO" "Running experiment with ${QUERY_PER_SECOND} queries per second"
+    #             fortio_load_test -o $OUTPUT_DIR -m $MESH -q $QUERY_PER_SECOND -d "true" -c "true" -r $RESOLUTION -h "x-benchmark-group: fortio"
+    #             log_message "DEBUG" "Wait 20 seconds to clean up the metrics"
+    #             sleep 20
+    #         done
+    #         kubectl delete -f ./manifests/httproute.yaml
+    #     done
+    # else
+    #     log_message "DEBUG" "Skipping HTTPRoute header-based routing test for baseline mesh"
+    # fi
 
     # Resource consumtion with multiple clients, constant throughput and no payload experiment (experiment 7). 
     if [ "$MESH" != "baseline" ]; then
